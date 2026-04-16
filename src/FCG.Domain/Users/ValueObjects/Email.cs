@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace FCG.Domain.Users.ValueObjects
 {
     public sealed class Email
@@ -11,7 +13,19 @@ namespace FCG.Domain.Users.ValueObjects
 
         public static Email Create(string value)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException("E-mail é obrigatório.");
+
+            value = value.Trim().ToLowerInvariant();
+
+            var regex = new Regex(@"^[^\s@]+@[^\s@]+\.[^\s@]{2,}$");
+
+            if (!regex.IsMatch(value))
+            {
+                throw new ArgumentException("E-mail deve estar em um formato válido.");
+            }
+
+            return new Email(value);
         }
     }
 }
