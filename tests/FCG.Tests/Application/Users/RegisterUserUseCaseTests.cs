@@ -10,6 +10,7 @@ namespace FCG.Tests.Application.Users;
 
 public sealed class RegisterUserUseCaseTests
 {
+    [Trait("Category", "Unit")]
     [Fact]
     public async Task Deve_Cadastrar_Usuario_Quando_Dados_Forem_Validos()
     {
@@ -56,6 +57,7 @@ public sealed class RegisterUserUseCaseTests
         await userRepository.Received(1).AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }
 
+    [Trait("Category", "Unit")]
     [Fact]
     public async Task Deve_Lancar_Excecao_Quando_Senha_E_Confirmacao_Nao_Conferirem()
     {
@@ -78,6 +80,7 @@ public sealed class RegisterUserUseCaseTests
         await userRepository.DidNotReceive().AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }
 
+    [Trait("Category", "Unit")]
     [Fact]
     public async Task Deve_Lancar_Excecao_Quando_Email_Ja_Estiver_Cadastrado()
     {

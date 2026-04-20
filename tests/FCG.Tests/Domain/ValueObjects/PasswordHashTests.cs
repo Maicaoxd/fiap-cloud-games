@@ -3,6 +3,7 @@ using FCG.Domain.Users.ValueObjects;
 
 namespace FCG.Tests.Domain.ValueObjects;
 
+[Trait("Category", "Unit")]
 public sealed class PasswordHashTests
 {
     [Fact]

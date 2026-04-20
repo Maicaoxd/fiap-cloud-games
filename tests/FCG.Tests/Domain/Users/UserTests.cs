@@ -4,6 +4,7 @@ using FCG.Domain.Users.ValueObjects;
 
 namespace FCG.Tests.Domain.Users;
 
+[Trait("Category", "Unit")]
 public sealed class UserTests
 {
     [Fact]
