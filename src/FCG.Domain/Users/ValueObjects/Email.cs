@@ -1,8 +1,9 @@
+using FCG.Domain.Shared;
 using System.Text.RegularExpressions;
 
 namespace FCG.Domain.Users.ValueObjects
 {
-    public sealed class Email
+    public sealed class Email : ValueObject
     {
         private const string RequiredMessage = "E-mail é obrigatório.";
         private const string InvalidFormatMessage = "E-mail deve estar em um formato válido.";
@@ -25,6 +26,11 @@ namespace FCG.Domain.Users.ValueObjects
             EnsureValidFormat(normalizedValue);
 
             return new Email(normalizedValue);
+        }
+
+        protected override IEnumerable<object?> GetEqualityComponents()
+        {
+            yield return Value;
         }
 
         private static void EnsureIsRequired(string value)

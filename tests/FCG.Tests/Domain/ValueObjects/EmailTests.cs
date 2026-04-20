@@ -67,4 +67,47 @@ public sealed class EmailTests
         // Assert
         Assert.Equal("maicon@email.com", email.Value);
     }
+
+    [Fact]
+    public void Deve_Considerar_Emails_Iguais_Quando_Valores_Normalizados_Forem_Iguais()
+    {
+        // Arrange
+        var primeiroEmail = Email.Create("  MAICON@EMAIL.COM  ");
+        var segundoEmail = Email.Create("maicon@email.com");
+
+        // Act
+        var saoIguais = primeiroEmail.Equals(segundoEmail);
+
+        // Assert
+        Assert.True(saoIguais);
+    }
+
+    [Fact]
+    public void Deve_Considerar_Emails_Diferentes_Quando_Valores_Forem_Diferentes()
+    {
+        // Arrange
+        var primeiroEmail = Email.Create("maicon@email.com");
+        var segundoEmail = Email.Create("outro@email.com");
+
+        // Act
+        var saoIguais = primeiroEmail.Equals(segundoEmail);
+
+        // Assert
+        Assert.False(saoIguais);
+    }
+
+    [Fact]
+    public void Deve_Gerar_Mesmo_HashCode_Quando_Emails_Forem_Iguais()
+    {
+        // Arrange
+        var primeiroEmail = Email.Create("  MAICON@EMAIL.COM  ");
+        var segundoEmail = Email.Create("maicon@email.com");
+
+        // Act
+        var primeiroHashCode = primeiroEmail.GetHashCode();
+        var segundoHashCode = segundoEmail.GetHashCode();
+
+        // Assert
+        Assert.Equal(primeiroHashCode, segundoHashCode);
+    }
 }
