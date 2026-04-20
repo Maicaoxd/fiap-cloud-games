@@ -1,3 +1,4 @@
+using FCG.Domain.Shared;
 using FCG.Domain.Users;
 using FCG.Domain.Users.ValueObjects;
 
@@ -60,7 +61,7 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe("Nome é obrigatório.");
+        excecao.Message.ShouldBe(DomainMessages.User.NameRequired);
     }
 
     [Fact]
@@ -74,7 +75,7 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe("E-mail é obrigatório.");
+        excecao.Message.ShouldBe(DomainMessages.Email.Required);
     }
 
     [Fact]
@@ -88,7 +89,7 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe("Hash da senha é obrigatório.");
+        excecao.Message.ShouldBe(DomainMessages.PasswordHash.Required);
     }
 
     [Fact]
@@ -142,7 +143,7 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe("Responsável pela alteração é obrigatório.");
+        excecao.Message.ShouldBe(DomainMessages.ResponsibleForChangeRequired);
     }
 
     [Fact]
@@ -160,7 +161,7 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe("Responsável pela alteração é obrigatório.");
+        excecao.Message.ShouldBe(DomainMessages.ResponsibleForChangeRequired);
     }
 
     [Fact]
@@ -199,7 +200,7 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe("Nome é obrigatório.");
+        excecao.Message.ShouldBe(DomainMessages.User.NameRequired);
     }
 
     [Fact]
@@ -215,7 +216,7 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe("Responsável pela alteração é obrigatório.");
+        excecao.Message.ShouldBe(DomainMessages.ResponsibleForChangeRequired);
     }
 
     [Fact]
@@ -251,7 +252,7 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe("E-mail é obrigatório.");
+        excecao.Message.ShouldBe(DomainMessages.Email.Required);
     }
 
     [Fact]
@@ -268,7 +269,7 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe("Responsável pela alteração é obrigatório.");
+        excecao.Message.ShouldBe(DomainMessages.ResponsibleForChangeRequired);
     }
 
     [Fact]
@@ -304,7 +305,7 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe("Hash da senha é obrigatório.");
+        excecao.Message.ShouldBe(DomainMessages.PasswordHash.Required);
     }
 
     [Fact]
@@ -321,6 +322,6 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe("Responsável pela alteração é obrigatório.");
+        excecao.Message.ShouldBe(DomainMessages.ResponsibleForChangeRequired);
     }
 }

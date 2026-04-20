@@ -5,10 +5,6 @@ namespace FCG.Domain.Users
 {
     public class User : Entity
     {
-        private const string RequiredNameMessage = "Nome é obrigatório.";
-        private const string RequiredEmailMessage = "E-mail é obrigatório.";
-        private const string RequiredPasswordHashMessage = "Hash da senha é obrigatório.";
-
         public string Name { get; private set; }
         public Email Email { get; private set; }
         public PasswordHash PasswordHash { get; private set; }
@@ -69,19 +65,19 @@ namespace FCG.Domain.Users
         private static void EnsureNameIsRequired(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException(RequiredNameMessage);
+                throw new ArgumentException(DomainMessages.User.NameRequired);
         }
 
         private static void EnsureEmailIsRequired(Email email)
         {
             if (email is null)
-                throw new ArgumentException(RequiredEmailMessage);
+                throw new ArgumentException(DomainMessages.Email.Required);
         }
 
         private static void EnsurePasswordHashIsRequired(PasswordHash passwordHash)
         {
             if (passwordHash is null)
-                throw new ArgumentException(RequiredPasswordHashMessage);
+                throw new ArgumentException(DomainMessages.PasswordHash.Required);
         }
     }
 }

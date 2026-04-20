@@ -1,3 +1,4 @@
+using FCG.Domain.Shared;
 using FCG.Domain.Users.ValueObjects;
 
 namespace FCG.Tests.Domain.ValueObjects;
@@ -31,7 +32,7 @@ public sealed class EmailTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe("E-mail é obrigatório.");
+        excecao.Message.ShouldBe(DomainMessages.Email.Required);
     }
 
     [Theory]
@@ -52,7 +53,7 @@ public sealed class EmailTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe("E-mail deve estar em um formato válido.");
+        excecao.Message.ShouldBe(DomainMessages.Email.InvalidFormat);
     }
 
     [Fact]

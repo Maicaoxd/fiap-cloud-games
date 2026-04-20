@@ -4,8 +4,6 @@ namespace FCG.Domain.Users.ValueObjects
 {
     public sealed class PasswordHash : ValueObject
     {
-        private const string RequiredMessage = "Hash da senha é obrigatório.";
-
         public string Value { get; }
 
         private PasswordHash(string value)
@@ -28,7 +26,7 @@ namespace FCG.Domain.Users.ValueObjects
         private static void EnsureIsRequired(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException(RequiredMessage);
+                throw new ArgumentException(DomainMessages.PasswordHash.Required);
         }
     }
 }

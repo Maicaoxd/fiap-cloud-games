@@ -1,3 +1,4 @@
+using FCG.Application.Common;
 using FCG.Application.Abstractions.Persistence;
 using FCG.Application.Abstractions.Security;
 using FCG.Domain.Users;
@@ -7,9 +8,6 @@ namespace FCG.Application.Users.Register
 {
     public sealed class RegisterUserUseCase
     {
-        private const string PasswordConfirmationMessage = "As senhas não conferem.";
-        private const string EmailAlreadyRegisteredMessage = "E-mail já cadastrado.";
-
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
 
@@ -29,7 +27,7 @@ namespace FCG.Application.Users.Register
             var password = Password.Create(command.Password);
 
             if (await _userRepository.ExistsByEmailAsync(email, cancellationToken))
-                throw new InvalidOperationException(EmailAlreadyRegisteredMessage);
+                throw new InvalidOperationException(ApplicationMessages.User.EmailAlreadyRegistered);
 
             var passwordHash = _passwordHasher.Hash(password);
             var user = User.Create(command.Name, email, passwordHash);
@@ -42,7 +40,7 @@ namespace FCG.Application.Users.Register
         private static void EnsurePasswordsMatch(string password, string confirmPassword)
         {
             if (password != confirmPassword)
-                throw new ArgumentException(PasswordConfirmationMessage);
+                throw new ArgumentException(ApplicationMessages.User.PasswordConfirmationDoesNotMatch);
         }
     }
 }

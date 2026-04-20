@@ -1,3 +1,4 @@
+using FCG.Domain.Shared;
 using FCG.Domain.Users.ValueObjects;
 
 namespace FCG.Tests.Domain.ValueObjects;
@@ -31,7 +32,7 @@ public sealed class PasswordTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe("Senha é obrigatória.");
+        excecao.Message.ShouldBe(DomainMessages.Password.Required);
     }
 
     [Fact]
@@ -45,7 +46,7 @@ public sealed class PasswordTests
 
         // Assert
         var excecao = Should.Throw<ArgumentException>(acao);
-        excecao.Message.ShouldBe("Senha deve ter no mínimo 8 caracteres.");
+        excecao.Message.ShouldBe(DomainMessages.Password.MinimumLength);
     }
 
     [Fact]
@@ -59,7 +60,7 @@ public sealed class PasswordTests
 
         // Assert
         var excecao = Should.Throw<ArgumentException>(acao);
-        excecao.Message.ShouldBe("Senha deve conter pelo menos uma letra.");
+        excecao.Message.ShouldBe(DomainMessages.Password.LetterRequired);
     }
 
     [Fact]
@@ -73,7 +74,7 @@ public sealed class PasswordTests
 
         // Assert
         var excecao = Should.Throw<ArgumentException>(acao);
-        excecao.Message.ShouldBe("Senha deve conter pelo menos um número.");
+        excecao.Message.ShouldBe(DomainMessages.Password.NumberRequired);
     }
 
     [Fact]
@@ -87,7 +88,7 @@ public sealed class PasswordTests
 
         // Assert
         var excecao = Should.Throw<ArgumentException>(acao);
-        excecao.Message.ShouldBe("Senha deve conter pelo menos um caractere especial.");
+        excecao.Message.ShouldBe(DomainMessages.Password.SpecialCharacterRequired);
     }
 
     [Fact]
@@ -101,6 +102,6 @@ public sealed class PasswordTests
 
         // Assert
         var excecao = Should.Throw<ArgumentException>(acao);
-        excecao.Message.ShouldBe("Senha não deve conter espaços em branco.");
+        excecao.Message.ShouldBe(DomainMessages.Password.WhiteSpaceNotAllowed);
     }
 }

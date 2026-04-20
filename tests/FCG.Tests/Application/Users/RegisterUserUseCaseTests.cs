@@ -1,5 +1,6 @@
 using FCG.Application.Abstractions.Persistence;
 using FCG.Application.Abstractions.Security;
+using FCG.Application.Common;
 using FCG.Application.Users.Register;
 using FCG.Domain.Users;
 using FCG.Domain.Users.ValueObjects;
@@ -72,7 +73,7 @@ public sealed class RegisterUserUseCaseTests
         var excecao = await Should.ThrowAsync<ArgumentException>(() => useCase.ExecuteAsync(command));
 
         // Assert
-        excecao.Message.ShouldBe("As senhas não conferem.");
+        excecao.Message.ShouldBe(ApplicationMessages.User.PasswordConfirmationDoesNotMatch);
         passwordHasher.DidNotReceive().Hash(Arg.Any<Password>());
         await userRepository.DidNotReceive().AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }
@@ -99,7 +100,7 @@ public sealed class RegisterUserUseCaseTests
         var excecao = await Should.ThrowAsync<InvalidOperationException>(() => useCase.ExecuteAsync(command));
 
         // Assert
-        excecao.Message.ShouldBe("E-mail já cadastrado.");
+        excecao.Message.ShouldBe(ApplicationMessages.User.EmailAlreadyRegistered);
         passwordHasher.DidNotReceive().Hash(Arg.Any<Password>());
         await userRepository.DidNotReceive().AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }

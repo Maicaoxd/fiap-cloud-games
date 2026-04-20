@@ -1,14 +1,10 @@
+using FCG.Domain.Shared;
+
 namespace FCG.Domain.Users.ValueObjects
 {
     public sealed class Password
     {
         private const int MinimumLength = 8;
-        private const string RequiredMessage = "Senha é obrigatória.";
-        private const string WhiteSpaceMessage = "Senha não deve conter espaços em branco.";
-        private const string MinimumLengthMessage = "Senha deve ter no mínimo 8 caracteres.";
-        private const string LetterMessage = "Senha deve conter pelo menos uma letra.";
-        private const string NumberMessage = "Senha deve conter pelo menos um número.";
-        private const string SpecialCharacterMessage = "Senha deve conter pelo menos um caractere especial.";
 
         public string Value { get; }
 
@@ -32,37 +28,37 @@ namespace FCG.Domain.Users.ValueObjects
         private static void EnsureIsRequired(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException(RequiredMessage);
+                throw new ArgumentException(DomainMessages.Password.Required);
         }
 
         private static void EnsureHasNoWhiteSpace(string value)
         {
             if (value.Any(char.IsWhiteSpace))
-                throw new ArgumentException(WhiteSpaceMessage);
+                throw new ArgumentException(DomainMessages.Password.WhiteSpaceNotAllowed);
         }
 
         private static void EnsureMinimumLength(string value)
         {
             if (value.Length < MinimumLength)
-                throw new ArgumentException(MinimumLengthMessage);
+                throw new ArgumentException(DomainMessages.Password.MinimumLength);
         }
 
         private static void EnsureHasLetter(string value)
         {
             if (!value.Any(char.IsLetter))
-                throw new ArgumentException(LetterMessage);
+                throw new ArgumentException(DomainMessages.Password.LetterRequired);
         }
 
         private static void EnsureHasNumber(string value)
         {
             if (!value.Any(char.IsDigit))
-                throw new ArgumentException(NumberMessage);
+                throw new ArgumentException(DomainMessages.Password.NumberRequired);
         }
 
         private static void EnsureHasSpecialCharacter(string value)
         {
             if (!value.Any(character => !char.IsLetterOrDigit(character)))
-                throw new ArgumentException(SpecialCharacterMessage);
+                throw new ArgumentException(DomainMessages.Password.SpecialCharacterRequired);
         }
     }
 }
