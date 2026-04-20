@@ -1,6 +1,7 @@
-using FCG.Application.Common;
 using FCG.Application.Abstractions.Persistence;
 using FCG.Application.Abstractions.Security;
+using FCG.Application.Common;
+using FCG.Application.Common.Exceptions;
 using FCG.Domain.Users;
 using FCG.Domain.Users.ValueObjects;
 
@@ -27,7 +28,7 @@ namespace FCG.Application.Users.Register
             var password = Password.Create(command.Password);
 
             if (await _userRepository.ExistsByEmailAsync(email, cancellationToken))
-                throw new InvalidOperationException(ApplicationMessages.User.EmailAlreadyRegistered);
+                throw new EmailAlreadyRegisteredException();
 
             var passwordHash = _passwordHasher.Hash(password);
             var user = User.Create(command.Name, email, passwordHash);

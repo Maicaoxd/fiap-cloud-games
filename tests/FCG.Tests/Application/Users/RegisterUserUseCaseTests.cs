@@ -1,6 +1,7 @@
 using FCG.Application.Abstractions.Persistence;
 using FCG.Application.Abstractions.Security;
 using FCG.Application.Common;
+using FCG.Application.Common.Exceptions;
 using FCG.Application.Users.Register;
 using FCG.Domain.Users;
 using FCG.Domain.Users.ValueObjects;
@@ -100,7 +101,7 @@ public sealed class RegisterUserUseCaseTests
             "Senha@123");
 
         // Act
-        var excecao = await Should.ThrowAsync<InvalidOperationException>(() => useCase.ExecuteAsync(command));
+        var excecao = await Should.ThrowAsync<EmailAlreadyRegisteredException>(() => useCase.ExecuteAsync(command));
 
         // Assert
         excecao.Message.ShouldBe(ApplicationMessages.User.EmailAlreadyRegistered);
