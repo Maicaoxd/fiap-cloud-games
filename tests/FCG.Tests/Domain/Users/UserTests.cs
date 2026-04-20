@@ -24,7 +24,24 @@ public sealed class UserTests
         Assert.Equal(UserRole.User, usuario.Role);
         Assert.True(usuario.IsActive);
         Assert.NotEqual(default, usuario.CreatedAt);
+        Assert.Equal(usuario.Id, usuario.CreatedBy);
         Assert.Null(usuario.UpdatedAt);
+        Assert.Null(usuario.UpdatedBy);
+    }
+
+    [Fact]
+    public void Deve_Criar_Usuario_Com_Auditoria_Quando_Criado_Por_Outro_Usuario()
+    {
+        // Arrange
+        var criadoPor = Guid.NewGuid();
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+
+        // Act
+        var usuario = User.Create("Maicon Guedes", email, passwordHash, criadoPor);
+
+        // Assert
+        Assert.Equal(criadoPor, usuario.CreatedBy);
     }
 
     [Theory]
@@ -78,15 +95,37 @@ public sealed class UserTests
     public void Deve_Desativar_Usuario_Quando_Usuario_Estiver_Ativo()
     {
         // Arrange
+        var desativadoPor = Guid.NewGuid();
         var email = Email.Create("maicon@email.com");
         var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
         var usuario = User.Create("Maicon Guedes", email, passwordHash);
 
         // Act
-        usuario.Deactivate();
+        usuario.Deactivate(desativadoPor);
 
         // Assert
         Assert.False(usuario.IsActive);
         Assert.NotNull(usuario.UpdatedAt);
+        Assert.Equal(desativadoPor, usuario.UpdatedBy);
+    }
+
+    [Fact]
+    public void Deve_Reativar_Usuario_Quando_Usuario_Estiver_Inativo()
+    {
+        // Arrange
+        var desativadoPor = Guid.NewGuid();
+        var ativadoPor = Guid.NewGuid();
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var usuario = User.Create("Maicon Guedes", email, passwordHash);
+        usuario.Deactivate(desativadoPor);
+
+        // Act
+        usuario.Activate(ativadoPor);
+
+        // Assert
+        Assert.True(usuario.IsActive);
+        Assert.NotNull(usuario.UpdatedAt);
+        Assert.Equal(ativadoPor, usuario.UpdatedBy);
     }
 }

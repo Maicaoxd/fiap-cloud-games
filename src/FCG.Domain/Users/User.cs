@@ -14,7 +14,8 @@ namespace FCG.Domain.Users
         public PasswordHash PasswordHash { get; }
         public UserRole Role { get; }
 
-        private User(string name, Email email, PasswordHash passwordHash, UserRole role)
+        private User(string name, Email email, PasswordHash passwordHash, UserRole role, Guid? createdBy)
+            : base(createdBy)
         {
             Name = name;
             Email = email;
@@ -22,19 +23,23 @@ namespace FCG.Domain.Users
             Role = role;
         }
 
-        public static User Create(string name, Email email, PasswordHash passwordHash)
+        public static User Create(string name, Email email, PasswordHash passwordHash, Guid? createdBy = null)
         {
             EnsureNameIsRequired(name);
             EnsureEmailIsRequired(email);
             EnsurePasswordHashIsRequired(passwordHash);
 
-            return new User(name, email, passwordHash, UserRole.User);
+            return new User(name, email, passwordHash, UserRole.User, createdBy);
         }
 
-        public void Deactivate()
+        public void Activate(Guid activatedBy)
         {
-            IsActive = false;
-            UpdatedAt = DateTime.UtcNow;
+            MarkAsActivated(activatedBy);
+        }
+
+        public void Deactivate(Guid deactivatedBy)
+        {
+            MarkAsDeactivated(deactivatedBy);
         }
 
         private static void EnsureNameIsRequired(string name)
