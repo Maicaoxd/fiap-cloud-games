@@ -9,6 +9,7 @@ namespace FCG.Domain.Shared
 
         protected Entity()
         {
+            Id = Guid.NewGuid();
             CreatedAt = DateTime.UtcNow;
             IsActive = true;
         }
