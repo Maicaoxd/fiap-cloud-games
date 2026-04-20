@@ -45,6 +45,21 @@ public sealed class UserTests
         usuario.CreatedBy.ShouldBe(criadoPor);
     }
 
+    [Fact]
+    public void Deve_Lancar_Excecao_Quando_Criar_Usuario_Com_Responsavel_Invalido()
+    {
+        // Arrange
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        Action acao = () => User.Create("Maicon Guedes", email, passwordHash, Guid.Empty);
+
+        // Act
+        var excecao = Should.Throw<ArgumentException>(acao);
+
+        // Assert
+        excecao.Message.ShouldBe(DomainMessages.Entity.ResponsibleForChangeRequired);
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]

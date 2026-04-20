@@ -11,6 +11,9 @@ namespace FCG.Domain.Shared
 
         protected Entity(Guid? createdBy = null)
         {
+            if (createdBy.HasValue)
+                EnsureResponsibleForChangeIsRequired(createdBy.Value);
+
             Id = Guid.NewGuid();
             CreatedAt = DateTime.UtcNow;
             CreatedBy = createdBy ?? Id;
@@ -19,7 +22,7 @@ namespace FCG.Domain.Shared
 
         protected void MarkAsUpdated(Guid updatedBy)
         {
-            EnsureUpdatedByIsRequired(updatedBy);
+            EnsureResponsibleForChangeIsRequired(updatedBy);
 
             UpdatedAt = DateTime.UtcNow;
             UpdatedBy = updatedBy;
@@ -37,9 +40,9 @@ namespace FCG.Domain.Shared
             MarkAsUpdated(deactivatedBy);
         }
 
-        private static void EnsureUpdatedByIsRequired(Guid updatedBy)
+        private static void EnsureResponsibleForChangeIsRequired(Guid responsibleForChange)
         {
-            if (updatedBy == Guid.Empty)
+            if (responsibleForChange == Guid.Empty)
                 throw new ArgumentException(DomainMessages.Entity.ResponsibleForChangeRequired);
         }
     }
