@@ -9,9 +9,9 @@ namespace FCG.Domain.Users
         private const string RequiredEmailMessage = "E-mail é obrigatório.";
         private const string RequiredPasswordHashMessage = "Hash da senha é obrigatório.";
 
-        public string Name { get; }
-        public Email Email { get; }
-        public PasswordHash PasswordHash { get; }
+        public string Name { get; private set; }
+        public Email Email { get; private set; }
+        public PasswordHash PasswordHash { get; private set; }
         public UserRole Role { get; }
 
         private User(string name, Email email, PasswordHash passwordHash, UserRole role, Guid? createdBy)
@@ -40,6 +40,30 @@ namespace FCG.Domain.Users
         public void Deactivate(Guid deactivatedBy)
         {
             MarkAsDeactivated(deactivatedBy);
+        }
+
+        public void ChangeName(string name, Guid updatedBy)
+        {
+            EnsureNameIsRequired(name);
+
+            Name = name;
+            MarkAsUpdated(updatedBy);
+        }
+
+        public void ChangeEmail(Email email, Guid updatedBy)
+        {
+            EnsureEmailIsRequired(email);
+
+            Email = email;
+            MarkAsUpdated(updatedBy);
+        }
+
+        public void ChangePassword(PasswordHash passwordHash, Guid updatedBy)
+        {
+            EnsurePasswordHashIsRequired(passwordHash);
+
+            PasswordHash = passwordHash;
+            MarkAsUpdated(updatedBy);
         }
 
         private static void EnsureNameIsRequired(string name)

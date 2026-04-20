@@ -68,7 +68,7 @@ public sealed class UserTests
     {
         // Arrange
         var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
-        Action acao = () => User.Create("Maicon Silva", null!, passwordHash);
+        Action acao = () => User.Create("Maicon Guedes", null!, passwordHash);
 
         // Act
         var excecao = Assert.Throws<ArgumentException>(acao);
@@ -127,5 +127,200 @@ public sealed class UserTests
         Assert.True(usuario.IsActive);
         Assert.NotNull(usuario.UpdatedAt);
         Assert.Equal(ativadoPor, usuario.UpdatedBy);
+    }
+
+    [Fact]
+    public void Deve_Lancar_Excecao_Quando_Desativar_Usuario_Sem_Responsavel_Valido()
+    {
+        // Arrange
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var usuario = User.Create("Maicon Guedes", email, passwordHash);
+        Action acao = () => usuario.Deactivate(Guid.Empty);
+
+        // Act
+        var excecao = Assert.Throws<ArgumentException>(acao);
+
+        // Assert
+        Assert.Equal("Responsável pela alteração é obrigatório.", excecao.Message);
+    }
+
+    [Fact]
+    public void Deve_Lancar_Excecao_Quando_Reativar_Usuario_Sem_Responsavel_Valido()
+    {
+        // Arrange
+        var desativadoPor = Guid.NewGuid();
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var usuario = User.Create("Maicon Guedes", email, passwordHash);
+        usuario.Deactivate(desativadoPor);
+        Action acao = () => usuario.Activate(Guid.Empty);
+
+        // Act
+        var excecao = Assert.Throws<ArgumentException>(acao);
+
+        // Assert
+        Assert.Equal("Responsável pela alteração é obrigatório.", excecao.Message);
+    }
+
+    [Fact]
+    public void Deve_Alterar_Nome_Quando_Nome_For_Valido()
+    {
+        // Arrange
+        var atualizadoPor = Guid.NewGuid();
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var usuario = User.Create("Maicon Alves", email, passwordHash);
+
+        // Act
+        usuario.ChangeName("Maicon Guedes", atualizadoPor);
+
+        // Assert
+        Assert.Equal("Maicon Guedes", usuario.Name);
+        Assert.NotNull(usuario.UpdatedAt);
+        Assert.Equal(atualizadoPor, usuario.UpdatedBy);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("   ")]
+    public void Deve_Lancar_Excecao_Quando_Alterar_Nome_Para_Valor_Obrigatorio_E_Nao_Informado(string? nome)
+    {
+        // Arrange
+        var atualizadoPor = Guid.NewGuid();
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var usuario = User.Create("Maicon Guedes", email, passwordHash);
+        Action acao = () => usuario.ChangeName(nome!, atualizadoPor);
+
+        // Act
+        var excecao = Assert.Throws<ArgumentException>(acao);
+
+        // Assert
+        Assert.Equal("Nome é obrigatório.", excecao.Message);
+    }
+
+    [Fact]
+    public void Deve_Lancar_Excecao_Quando_Alterar_Nome_Sem_Responsavel_Valido()
+    {
+        // Arrange
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var usuario = User.Create("Maicon Guedes", email, passwordHash);
+        Action acao = () => usuario.ChangeName("Maicon Guedes", Guid.Empty);
+
+        // Act
+        var excecao = Assert.Throws<ArgumentException>(acao);
+
+        // Assert
+        Assert.Equal("Responsável pela alteração é obrigatório.", excecao.Message);
+    }
+
+    [Fact]
+    public void Deve_Alterar_Email_Quando_Email_For_Valido()
+    {
+        // Arrange
+        var atualizadoPor = Guid.NewGuid();
+        var email = Email.Create("maicon@email.com");
+        var novoEmail = Email.Create("novo@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var usuario = User.Create("Maicon Guedes", email, passwordHash);
+
+        // Act
+        usuario.ChangeEmail(novoEmail, atualizadoPor);
+
+        // Assert
+        Assert.Equal(novoEmail, usuario.Email);
+        Assert.NotNull(usuario.UpdatedAt);
+        Assert.Equal(atualizadoPor, usuario.UpdatedBy);
+    }
+
+    [Fact]
+    public void Deve_Lancar_Excecao_Quando_Alterar_Email_Para_Valor_Obrigatorio_E_Nao_Informado()
+    {
+        // Arrange
+        var atualizadoPor = Guid.NewGuid();
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var usuario = User.Create("Maicon Guedes", email, passwordHash);
+        Action acao = () => usuario.ChangeEmail(null!, atualizadoPor);
+
+        // Act
+        var excecao = Assert.Throws<ArgumentException>(acao);
+
+        // Assert
+        Assert.Equal("E-mail é obrigatório.", excecao.Message);
+    }
+
+    [Fact]
+    public void Deve_Lancar_Excecao_Quando_Alterar_Email_Sem_Responsavel_Valido()
+    {
+        // Arrange
+        var email = Email.Create("maicon@email.com");
+        var novoEmail = Email.Create("novo@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var usuario = User.Create("Maicon Guedes", email, passwordHash);
+        Action acao = () => usuario.ChangeEmail(novoEmail, Guid.Empty);
+
+        // Act
+        var excecao = Assert.Throws<ArgumentException>(acao);
+
+        // Assert
+        Assert.Equal("Responsável pela alteração é obrigatório.", excecao.Message);
+    }
+
+    [Fact]
+    public void Deve_Alterar_Senha_Quando_PasswordHash_For_Valido()
+    {
+        // Arrange
+        var atualizadoPor = Guid.NewGuid();
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var novoPasswordHash = PasswordHash.Create("$2a$11$novohashfakeparatestes");
+        var usuario = User.Create("Maicon Guedes", email, passwordHash);
+
+        // Act
+        usuario.ChangePassword(novoPasswordHash, atualizadoPor);
+
+        // Assert
+        Assert.Equal(novoPasswordHash, usuario.PasswordHash);
+        Assert.NotNull(usuario.UpdatedAt);
+        Assert.Equal(atualizadoPor, usuario.UpdatedBy);
+    }
+
+    [Fact]
+    public void Deve_Lancar_Excecao_Quando_Alterar_Senha_Para_PasswordHash_Obrigatorio_E_Nao_Informado()
+    {
+        // Arrange
+        var atualizadoPor = Guid.NewGuid();
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var usuario = User.Create("Maicon Guedes", email, passwordHash);
+        Action acao = () => usuario.ChangePassword(null!, atualizadoPor);
+
+        // Act
+        var excecao = Assert.Throws<ArgumentException>(acao);
+
+        // Assert
+        Assert.Equal("Hash da senha é obrigatório.", excecao.Message);
+    }
+
+    [Fact]
+    public void Deve_Lancar_Excecao_Quando_Alterar_Senha_Sem_Responsavel_Valido()
+    {
+        // Arrange
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var novoPasswordHash = PasswordHash.Create("$2a$11$novohashfakeparatestes");
+        var usuario = User.Create("Maicon Guedes", email, passwordHash);
+        Action acao = () => usuario.ChangePassword(novoPasswordHash, Guid.Empty);
+
+        // Act
+        var excecao = Assert.Throws<ArgumentException>(acao);
+
+        // Assert
+        Assert.Equal("Responsável pela alteração é obrigatório.", excecao.Message);
     }
 }

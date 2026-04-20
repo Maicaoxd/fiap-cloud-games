@@ -2,6 +2,8 @@ namespace FCG.Domain.Shared
 {
     public abstract class Entity
     {
+        private const string RequiredUpdatedByMessage = "Responsável pela alteração é obrigatório.";
+
         public Guid Id { get; protected set; }
         public DateTime CreatedAt { get; protected set; }
         public Guid? CreatedBy { get; protected set; }
@@ -19,6 +21,8 @@ namespace FCG.Domain.Shared
 
         protected void MarkAsUpdated(Guid updatedBy)
         {
+            EnsureUpdatedByIsRequired(updatedBy);
+
             UpdatedAt = DateTime.UtcNow;
             UpdatedBy = updatedBy;
         }
@@ -33,6 +37,12 @@ namespace FCG.Domain.Shared
         {
             IsActive = false;
             MarkAsUpdated(deactivatedBy);
+        }
+
+        private static void EnsureUpdatedByIsRequired(Guid updatedBy)
+        {
+            if (updatedBy == Guid.Empty)
+                throw new ArgumentException(RequiredUpdatedByMessage);
         }
     }
 }
