@@ -31,6 +31,12 @@ namespace FCG.Domain.Users
             return new User(name, email, passwordHash, UserRole.User);
         }
 
+        public void Deactivate()
+        {
+            IsActive = false;
+            UpdatedAt = DateTime.UtcNow;
+        }
+
         private static void EnsureNameIsRequired(string name)
         {
             if (string.IsNullOrWhiteSpace(name))

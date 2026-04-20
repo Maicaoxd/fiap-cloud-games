@@ -73,4 +73,20 @@ public sealed class UserTests
         // Assert
         Assert.Equal("Hash da senha é obrigatório.", excecao.Message);
     }
+
+    [Fact]
+    public void Deve_Desativar_Usuario_Quando_Usuario_Estiver_Ativo()
+    {
+        // Arrange
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var usuario = User.Create("Maicon Guedes", email, passwordHash);
+
+        // Act
+        usuario.Deactivate();
+
+        // Assert
+        Assert.False(usuario.IsActive);
+        Assert.NotNull(usuario.UpdatedAt);
+    }
 }
