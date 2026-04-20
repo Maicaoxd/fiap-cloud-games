@@ -16,8 +16,8 @@ public sealed class BCryptPasswordHasherTests
         var passwordHash = passwordHasher.Hash(password);
 
         // Assert
-        Assert.False(string.IsNullOrWhiteSpace(passwordHash.Value));
-        Assert.NotEqual(password.Value, passwordHash.Value);
+        string.IsNullOrWhiteSpace(passwordHash.Value).ShouldBeFalse();
+        passwordHash.Value.ShouldNotBe(password.Value);
     }
 
     [Fact]
@@ -32,7 +32,7 @@ public sealed class BCryptPasswordHasherTests
         var senhaCorreta = passwordHasher.Verify(password, passwordHash);
 
         // Assert
-        Assert.True(senhaCorreta);
+        senhaCorreta.ShouldBeTrue();
     }
 
     [Fact]
@@ -48,6 +48,6 @@ public sealed class BCryptPasswordHasherTests
         var senhaCorreta = passwordHasher.Verify(wrongPassword, passwordHash);
 
         // Assert
-        Assert.False(senhaCorreta);
+        senhaCorreta.ShouldBeFalse();
     }
 }

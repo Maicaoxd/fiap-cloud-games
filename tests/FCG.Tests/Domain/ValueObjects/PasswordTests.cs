@@ -14,7 +14,7 @@ public sealed class PasswordTests
         var senha = Password.Create(valor);
 
         // Assert
-        Assert.NotNull(senha);
+        senha.ShouldNotBeNull();
     }
 
     [Theory]
@@ -28,10 +28,10 @@ public sealed class PasswordTests
         Action acao = () => Password.Create(valor!);
 
         // Act
-        var excecao = Assert.Throws<ArgumentException>(acao);
+        var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        Assert.Equal("Senha é obrigatória.", excecao.Message);
+        excecao.Message.ShouldBe("Senha é obrigatória.");
     }
 
     [Fact]
@@ -44,8 +44,8 @@ public sealed class PasswordTests
         Action acao = () => Password.Create(valor);
 
         // Assert
-        var excecao = Assert.Throws<ArgumentException>(acao);
-        Assert.Equal("Senha deve ter no mínimo 8 caracteres.", excecao.Message);
+        var excecao = Should.Throw<ArgumentException>(acao);
+        excecao.Message.ShouldBe("Senha deve ter no mínimo 8 caracteres.");
     }
 
     [Fact]
@@ -58,8 +58,8 @@ public sealed class PasswordTests
         Action acao = () => Password.Create(valor);
 
         // Assert
-        var excecao = Assert.Throws<ArgumentException>(acao);
-        Assert.Equal("Senha deve conter pelo menos uma letra.", excecao.Message);
+        var excecao = Should.Throw<ArgumentException>(acao);
+        excecao.Message.ShouldBe("Senha deve conter pelo menos uma letra.");
     }
 
     [Fact]
@@ -72,8 +72,8 @@ public sealed class PasswordTests
         Action acao = () => Password.Create(valor);
 
         // Assert
-        var excecao = Assert.Throws<ArgumentException>(acao);
-        Assert.Equal("Senha deve conter pelo menos um número.", excecao.Message);
+        var excecao = Should.Throw<ArgumentException>(acao);
+        excecao.Message.ShouldBe("Senha deve conter pelo menos um número.");
     }
 
     [Fact]
@@ -86,8 +86,8 @@ public sealed class PasswordTests
         Action acao = () => Password.Create(valor);
 
         // Assert
-        var excecao = Assert.Throws<ArgumentException>(acao);
-        Assert.Equal("Senha deve conter pelo menos um caractere especial.", excecao.Message);
+        var excecao = Should.Throw<ArgumentException>(acao);
+        excecao.Message.ShouldBe("Senha deve conter pelo menos um caractere especial.");
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public sealed class PasswordTests
         Action acao = () => Password.Create(valor);
 
         // Assert
-        var excecao = Assert.Throws<ArgumentException>(acao);
-        Assert.Equal("Senha não deve conter espaços em branco.", excecao.Message);
+        var excecao = Should.Throw<ArgumentException>(acao);
+        excecao.Message.ShouldBe("Senha não deve conter espaços em branco.");
     }
 }

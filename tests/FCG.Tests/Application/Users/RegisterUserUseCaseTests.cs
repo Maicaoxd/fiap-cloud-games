@@ -44,13 +44,13 @@ public sealed class RegisterUserUseCaseTests
         var result = await useCase.ExecuteAsync(command);
 
         // Assert
-        Assert.NotEqual(Guid.Empty, result.UserId);
-        Assert.NotNull(addedUser);
-        Assert.Equal(result.UserId, addedUser.Id);
-        Assert.Equal("Maicon Guedes", addedUser.Name);
-        Assert.Equal(Email.Create("maicon@email.com"), addedUser.Email);
-        Assert.Equal(passwordHash, addedUser.PasswordHash);
-        Assert.Equal(UserRole.User, addedUser.Role);
+        result.UserId.ShouldNotBe(Guid.Empty);
+        addedUser.ShouldNotBeNull();
+        addedUser!.Id.ShouldBe(result.UserId);
+        addedUser.Name.ShouldBe("Maicon Guedes");
+        addedUser.Email.ShouldBe(Email.Create("maicon@email.com"));
+        addedUser.PasswordHash.ShouldBe(passwordHash);
+        addedUser.Role.ShouldBe(UserRole.User);
         passwordHasher.Received(1).Hash(Arg.Any<Password>());
         await userRepository.Received(1).AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }
@@ -69,10 +69,10 @@ public sealed class RegisterUserUseCaseTests
             "Outra@123");
 
         // Act
-        var excecao = await Assert.ThrowsAsync<ArgumentException>(() => useCase.ExecuteAsync(command));
+        var excecao = await Should.ThrowAsync<ArgumentException>(() => useCase.ExecuteAsync(command));
 
         // Assert
-        Assert.Equal("As senhas não conferem.", excecao.Message);
+        excecao.Message.ShouldBe("As senhas não conferem.");
         passwordHasher.DidNotReceive().Hash(Arg.Any<Password>());
         await userRepository.DidNotReceive().AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }
@@ -96,10 +96,10 @@ public sealed class RegisterUserUseCaseTests
             "Senha@123");
 
         // Act
-        var excecao = await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.ExecuteAsync(command));
+        var excecao = await Should.ThrowAsync<InvalidOperationException>(() => useCase.ExecuteAsync(command));
 
         // Assert
-        Assert.Equal("E-mail já cadastrado.", excecao.Message);
+        excecao.Message.ShouldBe("E-mail já cadastrado.");
         passwordHasher.DidNotReceive().Hash(Arg.Any<Password>());
         await userRepository.DidNotReceive().AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }

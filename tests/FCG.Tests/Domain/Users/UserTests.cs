@@ -17,16 +17,16 @@ public sealed class UserTests
         var usuario = User.Create(nome, email, passwordHash);
 
         // Assert
-        Assert.NotEqual(Guid.Empty, usuario.Id);
-        Assert.Equal(nome, usuario.Name);
-        Assert.Equal(email, usuario.Email);
-        Assert.Equal(passwordHash, usuario.PasswordHash);
-        Assert.Equal(UserRole.User, usuario.Role);
-        Assert.True(usuario.IsActive);
-        Assert.NotEqual(default, usuario.CreatedAt);
-        Assert.Equal(usuario.Id, usuario.CreatedBy);
-        Assert.Null(usuario.UpdatedAt);
-        Assert.Null(usuario.UpdatedBy);
+        usuario.Id.ShouldNotBe(Guid.Empty);
+        usuario.Name.ShouldBe(nome);
+        usuario.Email.ShouldBe(email);
+        usuario.PasswordHash.ShouldBe(passwordHash);
+        usuario.Role.ShouldBe(UserRole.User);
+        usuario.IsActive.ShouldBeTrue();
+        usuario.CreatedAt.ShouldNotBe(default);
+        usuario.CreatedBy.ShouldBe(usuario.Id);
+        usuario.UpdatedAt.ShouldBeNull();
+        usuario.UpdatedBy.ShouldBeNull();
     }
 
     [Fact]
@@ -41,7 +41,7 @@ public sealed class UserTests
         var usuario = User.Create("Maicon Guedes", email, passwordHash, criadoPor);
 
         // Assert
-        Assert.Equal(criadoPor, usuario.CreatedBy);
+        usuario.CreatedBy.ShouldBe(criadoPor);
     }
 
     [Theory]
@@ -57,10 +57,10 @@ public sealed class UserTests
         Action acao = () => User.Create(nome!, email, passwordHash);
 
         // Act
-        var excecao = Assert.Throws<ArgumentException>(acao);
+        var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        Assert.Equal("Nome é obrigatório.", excecao.Message);
+        excecao.Message.ShouldBe("Nome é obrigatório.");
     }
 
     [Fact]
@@ -71,10 +71,10 @@ public sealed class UserTests
         Action acao = () => User.Create("Maicon Guedes", null!, passwordHash);
 
         // Act
-        var excecao = Assert.Throws<ArgumentException>(acao);
+        var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        Assert.Equal("E-mail é obrigatório.", excecao.Message);
+        excecao.Message.ShouldBe("E-mail é obrigatório.");
     }
 
     [Fact]
@@ -85,10 +85,10 @@ public sealed class UserTests
         Action acao = () => User.Create("Maicon Guedes", email, null!);
 
         // Act
-        var excecao = Assert.Throws<ArgumentException>(acao);
+        var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        Assert.Equal("Hash da senha é obrigatório.", excecao.Message);
+        excecao.Message.ShouldBe("Hash da senha é obrigatório.");
     }
 
     [Fact]
@@ -104,9 +104,9 @@ public sealed class UserTests
         usuario.Deactivate(desativadoPor);
 
         // Assert
-        Assert.False(usuario.IsActive);
-        Assert.NotNull(usuario.UpdatedAt);
-        Assert.Equal(desativadoPor, usuario.UpdatedBy);
+        usuario.IsActive.ShouldBeFalse();
+        usuario.UpdatedAt.ShouldNotBeNull();
+        usuario.UpdatedBy.ShouldBe(desativadoPor);
     }
 
     [Fact]
@@ -124,9 +124,9 @@ public sealed class UserTests
         usuario.Activate(ativadoPor);
 
         // Assert
-        Assert.True(usuario.IsActive);
-        Assert.NotNull(usuario.UpdatedAt);
-        Assert.Equal(ativadoPor, usuario.UpdatedBy);
+        usuario.IsActive.ShouldBeTrue();
+        usuario.UpdatedAt.ShouldNotBeNull();
+        usuario.UpdatedBy.ShouldBe(ativadoPor);
     }
 
     [Fact]
@@ -139,10 +139,10 @@ public sealed class UserTests
         Action acao = () => usuario.Deactivate(Guid.Empty);
 
         // Act
-        var excecao = Assert.Throws<ArgumentException>(acao);
+        var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        Assert.Equal("Responsável pela alteração é obrigatório.", excecao.Message);
+        excecao.Message.ShouldBe("Responsável pela alteração é obrigatório.");
     }
 
     [Fact]
@@ -157,10 +157,10 @@ public sealed class UserTests
         Action acao = () => usuario.Activate(Guid.Empty);
 
         // Act
-        var excecao = Assert.Throws<ArgumentException>(acao);
+        var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        Assert.Equal("Responsável pela alteração é obrigatório.", excecao.Message);
+        excecao.Message.ShouldBe("Responsável pela alteração é obrigatório.");
     }
 
     [Fact]
@@ -176,9 +176,9 @@ public sealed class UserTests
         usuario.ChangeName("Maicon Guedes", atualizadoPor);
 
         // Assert
-        Assert.Equal("Maicon Guedes", usuario.Name);
-        Assert.NotNull(usuario.UpdatedAt);
-        Assert.Equal(atualizadoPor, usuario.UpdatedBy);
+        usuario.Name.ShouldBe("Maicon Guedes");
+        usuario.UpdatedAt.ShouldNotBeNull();
+        usuario.UpdatedBy.ShouldBe(atualizadoPor);
     }
 
     [Theory]
@@ -196,10 +196,10 @@ public sealed class UserTests
         Action acao = () => usuario.ChangeName(nome!, atualizadoPor);
 
         // Act
-        var excecao = Assert.Throws<ArgumentException>(acao);
+        var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        Assert.Equal("Nome é obrigatório.", excecao.Message);
+        excecao.Message.ShouldBe("Nome é obrigatório.");
     }
 
     [Fact]
@@ -212,10 +212,10 @@ public sealed class UserTests
         Action acao = () => usuario.ChangeName("Maicon Guedes", Guid.Empty);
 
         // Act
-        var excecao = Assert.Throws<ArgumentException>(acao);
+        var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        Assert.Equal("Responsável pela alteração é obrigatório.", excecao.Message);
+        excecao.Message.ShouldBe("Responsável pela alteração é obrigatório.");
     }
 
     [Fact]
@@ -232,9 +232,9 @@ public sealed class UserTests
         usuario.ChangeEmail(novoEmail, atualizadoPor);
 
         // Assert
-        Assert.Equal(novoEmail, usuario.Email);
-        Assert.NotNull(usuario.UpdatedAt);
-        Assert.Equal(atualizadoPor, usuario.UpdatedBy);
+        usuario.Email.ShouldBe(novoEmail);
+        usuario.UpdatedAt.ShouldNotBeNull();
+        usuario.UpdatedBy.ShouldBe(atualizadoPor);
     }
 
     [Fact]
@@ -248,10 +248,10 @@ public sealed class UserTests
         Action acao = () => usuario.ChangeEmail(null!, atualizadoPor);
 
         // Act
-        var excecao = Assert.Throws<ArgumentException>(acao);
+        var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        Assert.Equal("E-mail é obrigatório.", excecao.Message);
+        excecao.Message.ShouldBe("E-mail é obrigatório.");
     }
 
     [Fact]
@@ -265,10 +265,10 @@ public sealed class UserTests
         Action acao = () => usuario.ChangeEmail(novoEmail, Guid.Empty);
 
         // Act
-        var excecao = Assert.Throws<ArgumentException>(acao);
+        var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        Assert.Equal("Responsável pela alteração é obrigatório.", excecao.Message);
+        excecao.Message.ShouldBe("Responsável pela alteração é obrigatório.");
     }
 
     [Fact]
@@ -285,9 +285,9 @@ public sealed class UserTests
         usuario.ChangePassword(novoPasswordHash, atualizadoPor);
 
         // Assert
-        Assert.Equal(novoPasswordHash, usuario.PasswordHash);
-        Assert.NotNull(usuario.UpdatedAt);
-        Assert.Equal(atualizadoPor, usuario.UpdatedBy);
+        usuario.PasswordHash.ShouldBe(novoPasswordHash);
+        usuario.UpdatedAt.ShouldNotBeNull();
+        usuario.UpdatedBy.ShouldBe(atualizadoPor);
     }
 
     [Fact]
@@ -301,10 +301,10 @@ public sealed class UserTests
         Action acao = () => usuario.ChangePassword(null!, atualizadoPor);
 
         // Act
-        var excecao = Assert.Throws<ArgumentException>(acao);
+        var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        Assert.Equal("Hash da senha é obrigatório.", excecao.Message);
+        excecao.Message.ShouldBe("Hash da senha é obrigatório.");
     }
 
     [Fact]
@@ -318,9 +318,9 @@ public sealed class UserTests
         Action acao = () => usuario.ChangePassword(novoPasswordHash, Guid.Empty);
 
         // Act
-        var excecao = Assert.Throws<ArgumentException>(acao);
+        var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        Assert.Equal("Responsável pela alteração é obrigatório.", excecao.Message);
+        excecao.Message.ShouldBe("Responsável pela alteração é obrigatório.");
     }
 }

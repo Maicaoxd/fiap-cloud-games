@@ -14,7 +14,7 @@ public sealed class PasswordHashTests
         var passwordHash = PasswordHash.Create(valor);
 
         // Assert
-        Assert.Equal(valor, passwordHash.Value);
+        passwordHash.Value.ShouldBe(valor);
     }
 
     [Theory]
@@ -28,10 +28,10 @@ public sealed class PasswordHashTests
         Action acao = () => PasswordHash.Create(valor!);
 
         // Act
-        var excecao = Assert.Throws<ArgumentException>(acao);
+        var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        Assert.Equal("Hash da senha é obrigatório.", excecao.Message);
+        excecao.Message.ShouldBe("Hash da senha é obrigatório.");
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public sealed class PasswordHashTests
         var saoIguais = primeiroPasswordHash.Equals(segundoPasswordHash);
 
         // Assert
-        Assert.True(saoIguais);
+        saoIguais.ShouldBeTrue();
     }
 
     [Fact]
@@ -59,6 +59,6 @@ public sealed class PasswordHashTests
         var saoIguais = primeiroPasswordHash.Equals(segundoPasswordHash);
 
         // Assert
-        Assert.False(saoIguais);
+        saoIguais.ShouldBeFalse();
     }
 }

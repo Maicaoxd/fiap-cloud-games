@@ -14,7 +14,7 @@ public sealed class EmailTests
         var email = Email.Create(valor);
 
         // Assert
-        Assert.Equal("maicon@email.com", email.Value);
+        email.Value.ShouldBe("maicon@email.com");
     }
 
     [Theory]
@@ -28,10 +28,10 @@ public sealed class EmailTests
         Action acao = () => Email.Create(valor!);
 
         // Act
-        var excecao = Assert.Throws<ArgumentException>(acao);
+        var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        Assert.Equal("E-mail é obrigatório.", excecao.Message);
+        excecao.Message.ShouldBe("E-mail é obrigatório.");
     }
 
     [Theory]
@@ -49,10 +49,10 @@ public sealed class EmailTests
         Action acao = () => Email.Create(valor);
 
         // Act
-        var excecao = Assert.Throws<ArgumentException>(acao);
+        var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        Assert.Equal("E-mail deve estar em um formato válido.", excecao.Message);
+        excecao.Message.ShouldBe("E-mail deve estar em um formato válido.");
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public sealed class EmailTests
         var email = Email.Create(valor);
 
         // Assert
-        Assert.Equal("maicon@email.com", email.Value);
+        email.Value.ShouldBe("maicon@email.com");
     }
 
     [Fact]
@@ -79,7 +79,7 @@ public sealed class EmailTests
         var saoIguais = primeiroEmail.Equals(segundoEmail);
 
         // Assert
-        Assert.True(saoIguais);
+        saoIguais.ShouldBeTrue();
     }
 
     [Fact]
@@ -93,7 +93,7 @@ public sealed class EmailTests
         var saoIguais = primeiroEmail.Equals(segundoEmail);
 
         // Assert
-        Assert.False(saoIguais);
+        saoIguais.ShouldBeFalse();
     }
 
     [Fact]
@@ -108,6 +108,6 @@ public sealed class EmailTests
         var segundoHashCode = segundoEmail.GetHashCode();
 
         // Assert
-        Assert.Equal(primeiroHashCode, segundoHashCode);
+        primeiroHashCode.ShouldBe(segundoHashCode);
     }
 }
