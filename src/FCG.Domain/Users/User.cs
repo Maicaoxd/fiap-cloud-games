@@ -8,7 +8,14 @@ namespace FCG.Domain.Users
         public string Name { get; private set; }
         public Email Email { get; private set; }
         public PasswordHash PasswordHash { get; private set; }
-        public UserRole Role { get; }
+        public UserRole Role { get; private set; }
+
+        private User()
+        {
+            Name = null!;
+            Email = null!;
+            PasswordHash = null!;
+        }
 
         private User(string name, Email email, PasswordHash passwordHash, UserRole role, Guid? createdBy)
             : base(createdBy)

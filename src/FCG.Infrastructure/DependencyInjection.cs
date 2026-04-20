@@ -1,0 +1,29 @@
+using FCG.Application.Abstractions.Persistence;
+using FCG.Application.Abstractions.Security;
+using FCG.Infrastructure.Persistence;
+using FCG.Infrastructure.Persistence.Repositories;
+using FCG.Infrastructure.Security;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace FCG.Infrastructure
+{
+    public static class DependencyInjection
+    {
+        public static IServiceCollection AddInfrastructure(
+            this IServiceCollection services,
+            IConfiguration configuration)
+        {
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+            services.AddDbContext<FcgDbContext>(options =>
+                options.UseSqlServer(connectionString));
+
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+
+            return services;
+        }
+    }
+}
