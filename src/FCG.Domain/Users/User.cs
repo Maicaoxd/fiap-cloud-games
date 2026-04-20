@@ -1,8 +1,9 @@
+using FCG.Domain.Shared;
 using FCG.Domain.Users.ValueObjects;
 
 namespace FCG.Domain.Users
 {
-    public class User
+    public class User : Entity
     {
         private const string RequiredNameMessage = "Nome é obrigatório.";
         private const string RequiredEmailMessage = "E-mail é obrigatório.";

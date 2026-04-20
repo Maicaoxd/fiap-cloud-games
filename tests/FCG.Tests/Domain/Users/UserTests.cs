@@ -17,10 +17,14 @@ public sealed class UserTests
         var usuario = User.Create(nome, email, passwordHash);
 
         // Assert
+        Assert.Equal(Guid.Empty, usuario.Id);
         Assert.Equal(nome, usuario.Name);
         Assert.Equal(email, usuario.Email);
         Assert.Equal(passwordHash, usuario.PasswordHash);
         Assert.Equal(UserRole.User, usuario.Role);
+        Assert.True(usuario.IsActive);
+        Assert.NotEqual(default, usuario.CreatedAt);
+        Assert.Null(usuario.UpdatedAt);
     }
 
     [Theory]
