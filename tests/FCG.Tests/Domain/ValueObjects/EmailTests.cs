@@ -22,10 +22,10 @@ public sealed class EmailTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData("   ")]
-    public void Deve_Lancar_Excecao_Quando_Email_For_Vazio(string valor)
+    public void Deve_Lancar_Excecao_Quando_Email_For_Vazio(string? valor)
     {
         // Arrange
-        Action acao = () => Email.Create(valor);
+        Action acao = () => Email.Create(valor!);
 
         // Act
         var excecao = Assert.Throws<ArgumentException>(acao);

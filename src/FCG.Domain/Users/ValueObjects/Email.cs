@@ -4,6 +4,9 @@ namespace FCG.Domain.Users.ValueObjects
 {
     public sealed class Email
     {
+        private const string RequiredMessage = "E-mail é obrigatório.";
+        private const string InvalidFormatMessage = "E-mail deve estar em um formato válido.";
+
         private static readonly Regex EmailRegex = new(@"^[^\s@]+@[^\s@]+\.[^\s@]{2,}$");
 
         public string Value { get; }
@@ -15,14 +18,19 @@ namespace FCG.Domain.Users.ValueObjects
 
         public static Email Create(string value)
         {
+            EnsureIsRequired(value);
+
+            var normalizedValue = Normalize(value);
+
+            EnsureValidFormat(normalizedValue);
+
+            return new Email(normalizedValue);
+        }
+
+        private static void EnsureIsRequired(string value)
+        {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("E-mail é obrigatório.");
-
-            value = Normalize(value);
-
-            EnsureValidFormat(value);
-
-            return new Email(value);
+                throw new ArgumentException(RequiredMessage);
         }
 
         private static string Normalize(string value)
@@ -33,7 +41,7 @@ namespace FCG.Domain.Users.ValueObjects
         private static void EnsureValidFormat(string value)
         {
             if (!EmailRegex.IsMatch(value))
-                throw new ArgumentException("E-mail deve estar em um formato válido.");
+                throw new ArgumentException(InvalidFormatMessage);
         }
     }
 }
