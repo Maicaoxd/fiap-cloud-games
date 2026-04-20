@@ -143,7 +143,7 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe(DomainMessages.ResponsibleForChangeRequired);
+        excecao.Message.ShouldBe(DomainMessages.Entity.ResponsibleForChangeRequired);
     }
 
     [Fact]
@@ -161,7 +161,7 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe(DomainMessages.ResponsibleForChangeRequired);
+        excecao.Message.ShouldBe(DomainMessages.Entity.ResponsibleForChangeRequired);
     }
 
     [Fact]
@@ -216,7 +216,7 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe(DomainMessages.ResponsibleForChangeRequired);
+        excecao.Message.ShouldBe(DomainMessages.Entity.ResponsibleForChangeRequired);
     }
 
     [Fact]
@@ -269,7 +269,7 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe(DomainMessages.ResponsibleForChangeRequired);
+        excecao.Message.ShouldBe(DomainMessages.Entity.ResponsibleForChangeRequired);
     }
 
     [Fact]
@@ -322,6 +322,6 @@ public sealed class UserTests
         var excecao = Should.Throw<ArgumentException>(acao);
 
         // Assert
-        excecao.Message.ShouldBe(DomainMessages.ResponsibleForChangeRequired);
+        excecao.Message.ShouldBe(DomainMessages.Entity.ResponsibleForChangeRequired);
     }
 }
