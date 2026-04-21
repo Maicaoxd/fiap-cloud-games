@@ -9,9 +9,9 @@ using NSubstitute;
 
 namespace FCG.Tests.Application.Users;
 
+[Trait("Category", "Unit")]
 public sealed class AuthenticateUserUseCaseTests
 {
-    [Trait("Category", "Unit")]
     [Fact]
     public async Task Deve_Autenticar_Usuario_Quando_Credenciais_Forem_Validas()
     {
@@ -54,7 +54,6 @@ public sealed class AuthenticateUserUseCaseTests
         accessTokenGenerator.Received(1).Generate(user);
     }
 
-    [Trait("Category", "Unit")]
     [Fact]
     public async Task Deve_Lancar_Excecao_Quando_Email_Nao_Estiver_Cadastrado()
     {
@@ -86,7 +85,6 @@ public sealed class AuthenticateUserUseCaseTests
         accessTokenGenerator.DidNotReceive().Generate(Arg.Any<User>());
     }
 
-    [Trait("Category", "Unit")]
     [Fact]
     public async Task Deve_Lancar_Excecao_Quando_Senha_For_Invalida()
     {
@@ -124,7 +122,6 @@ public sealed class AuthenticateUserUseCaseTests
         accessTokenGenerator.DidNotReceive().Generate(Arg.Any<User>());
     }
 
-    [Trait("Category", "Unit")]
     [Fact]
     public async Task Deve_Lancar_Excecao_Quando_Usuario_Estiver_Inativo()
     {

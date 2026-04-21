@@ -11,9 +11,9 @@ using NSubstitute;
 
 namespace FCG.Tests.Api.Middlewares;
 
+[Trait("Category", "Unit")]
 public sealed class GlobalExceptionHandlingMiddlewareTests
 {
-    [Trait("Category", "Unit")]
     [Fact]
     public async Task InvokeAsync_QuandoOcorrerArgumentException_DeveRetornarBadRequest()
     {
@@ -35,7 +35,6 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
         problemDetails.Detail.ShouldBe(DomainMessages.Email.InvalidFormat);
     }
 
-    [Trait("Category", "Unit")]
     [Fact]
     public async Task InvokeAsync_QuandoOcorrerBadHttpRequestException_DeveRetornarBadRequest()
     {
@@ -56,7 +55,6 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
         problemDetails.Detail.ShouldBe(ApiMessages.Validation.RequestBodyRequired);
     }
 
-    [Trait("Category", "Unit")]
     [Fact]
     public async Task InvokeAsync_QuandoOcorrerEmailAlreadyRegisteredException_DeveRetornarConflict()
     {
@@ -77,7 +75,6 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
         problemDetails.Detail.ShouldBe(ApplicationMessages.User.EmailAlreadyRegistered);
     }
 
-    [Trait("Category", "Unit")]
     [Fact]
     public async Task InvokeAsync_QuandoOcorrerInvalidCredentialsException_DeveRetornarUnauthorized()
     {
@@ -98,7 +95,6 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
         problemDetails.Detail.ShouldBe(ApplicationMessages.Authentication.InvalidCredentials);
     }
 
-    [Trait("Category", "Unit")]
     [Fact]
     public async Task InvokeAsync_QuandoOcorrerInactiveUserException_DeveRetornarForbidden()
     {

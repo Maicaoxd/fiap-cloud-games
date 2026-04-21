@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FCG.Tests.Infrastructure.Persistence;
 
+[Trait("Category", "Integration")]
 public sealed class UserRepositoryTests : IAsyncLifetime
 {
     private readonly DbContextOptions<FcgDbContext> _dbContextOptions;
@@ -36,7 +37,6 @@ public sealed class UserRepositoryTests : IAsyncLifetime
     }
 
     [Fact]
-    [Trait("Category", "Integration")]
     public async Task AddAsync_QuandoUsuarioForValido_DevePersistirUsuario()
     {
         // Arrange
@@ -63,7 +63,6 @@ public sealed class UserRepositoryTests : IAsyncLifetime
     }
 
     [Fact]
-    [Trait("Category", "Integration")]
     public async Task ExistsByEmailAsync_QuandoEmailEstiverCadastrado_DeveRetornarVerdadeiro()
     {
         // Arrange
@@ -84,7 +83,6 @@ public sealed class UserRepositoryTests : IAsyncLifetime
     }
 
     [Fact]
-    [Trait("Category", "Integration")]
     public async Task ExistsByEmailAsync_QuandoEmailNaoEstiverCadastrado_DeveRetornarFalso()
     {
         // Arrange
@@ -99,7 +97,6 @@ public sealed class UserRepositoryTests : IAsyncLifetime
     }
 
     [Fact]
-    [Trait("Category", "Integration")]
     public async Task GetByEmailAsync_QuandoEmailEstiverCadastrado_DeveRetornarUsuario()
     {
         // Arrange
@@ -126,7 +123,6 @@ public sealed class UserRepositoryTests : IAsyncLifetime
     }
 
     [Fact]
-    [Trait("Category", "Integration")]
     public async Task GetByEmailAsync_QuandoEmailForInformadoComEspacosEMaiusculas_DeveRetornarUsuario()
     {
         // Arrange
@@ -149,7 +145,6 @@ public sealed class UserRepositoryTests : IAsyncLifetime
     }
 
     [Fact]
-    [Trait("Category", "Integration")]
     public async Task GetByEmailAsync_QuandoEmailNaoEstiverCadastrado_DeveRetornarNulo()
     {
         // Arrange

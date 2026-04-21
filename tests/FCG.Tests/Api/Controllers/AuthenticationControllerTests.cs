@@ -11,9 +11,9 @@ using NSubstitute;
 
 namespace FCG.Tests.Api.Controllers;
 
+[Trait("Category", "Unit")]
 public sealed class AuthenticationControllerTests
 {
-    [Trait("Category", "Unit")]
     [Fact]
     public async Task LoginAsync_QuandoCredenciaisForemValidas_DeveRetornarOkComAccessToken()
     {
@@ -60,7 +60,6 @@ public sealed class AuthenticationControllerTests
         accessTokenGenerator.Received(1).Generate(user);
     }
 
-    [Trait("Category", "Unit")]
     [Fact]
     public void LoginAsync_DeveDocumentarRespostasEsperadasNoSwagger()
     {

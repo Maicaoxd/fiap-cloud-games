@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Routing;
 
 namespace FCG.Tests.Api.Common;
 
+[Trait("Category", "Unit")]
 public sealed class ApiValidationProblemDetailsFactoryTests
 {
-    [Trait("Category", "Unit")]
     [Fact]
     public void CreateInvalidModelStateResponse_QuandoModelStateForInvalido_DeveRetornarBadRequestComCamposEmCamelCase()
     {

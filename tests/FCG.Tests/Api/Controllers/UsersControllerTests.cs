@@ -10,9 +10,9 @@ using NSubstitute;
 
 namespace FCG.Tests.Api.Controllers;
 
+[Trait("Category", "Unit")]
 public sealed class UsersControllerTests
 {
-    [Trait("Category", "Unit")]
     [Fact]
     public async Task RegisterAsync_QuandoDadosForemValidos_DeveRetornarCreatedComUserId()
     {

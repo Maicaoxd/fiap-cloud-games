@@ -3,9 +3,9 @@ using FCG.Infrastructure.Security;
 
 namespace FCG.Tests.Infrastructure.Security;
 
+[Trait("Category", "Unit")]
 public sealed class BCryptPasswordHasherTests
 {
-    [Trait("Category", "Unit")]
     [Fact]
     public void Deve_Gerar_PasswordHash_Quando_Senha_For_Valida()
     {
@@ -21,7 +21,6 @@ public sealed class BCryptPasswordHasherTests
         passwordHash.Value.ShouldNotBe(password.Value);
     }
 
-    [Trait("Category", "Unit")]
     [Fact]
     public void Deve_Verificar_Senha_Quando_Valor_Original_For_Correto()
     {
@@ -37,7 +36,6 @@ public sealed class BCryptPasswordHasherTests
         senhaCorreta.ShouldBeTrue();
     }
 
-    [Trait("Category", "Unit")]
     [Fact]
     public void Deve_Nao_Verificar_Senha_Quando_Valor_Original_For_Incorreto()
     {

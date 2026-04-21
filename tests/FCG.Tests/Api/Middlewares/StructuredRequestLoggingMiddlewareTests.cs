@@ -4,9 +4,9 @@ using Microsoft.Extensions.Logging;
 
 namespace FCG.Tests.Api.Middlewares;
 
+[Trait("Category", "Unit")]
 public sealed class StructuredRequestLoggingMiddlewareTests
 {
-    [Trait("Category", "Unit")]
     [Fact]
     public async Task InvokeAsync_QuandoRequestForProcessado_DeveRegistrarLogEstruturado()
     {
@@ -36,7 +36,6 @@ public sealed class StructuredRequestLoggingMiddlewareTests
         logEntry.Properties.ContainsKey("ElapsedMilliseconds").ShouldBeTrue();
     }
 
-    [Trait("Category", "Unit")]
     [Fact]
     public async Task InvokeAsync_QuandoResponseForErroServidor_DeveRegistrarWarning()
     {

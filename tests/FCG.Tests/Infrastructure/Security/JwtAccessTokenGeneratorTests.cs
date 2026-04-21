@@ -5,9 +5,9 @@ using FCG.Infrastructure.Security;
 
 namespace FCG.Tests.Infrastructure.Security;
 
+[Trait("Category", "Unit")]
 public sealed class JwtAccessTokenGeneratorTests
 {
-    [Trait("Category", "Unit")]
     [Fact]
     public void Generate_QuandoUsuarioForValido_DeveGerarAccessTokenComClaimsDoUsuario()
     {

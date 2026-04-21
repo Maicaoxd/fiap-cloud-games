@@ -9,9 +9,9 @@ using Microsoft.Extensions.Options;
 
 namespace FCG.Tests.Api.Extensions;
 
+[Trait("Category", "Unit")]
 public sealed class ServiceCollectionExtensionsTests
 {
-    [Trait("Category", "Unit")]
     [Fact]
     public async Task AddApiPresentation_DeveConfigurarJwtBearerComoEsquemaPadrao()
     {
@@ -34,7 +34,6 @@ public sealed class ServiceCollectionExtensionsTests
         challengeScheme!.Name.ShouldBe(JwtBearerDefaults.AuthenticationScheme);
     }
 
-    [Trait("Category", "Unit")]
     [Fact]
     public void AddApiPresentation_DeveConfigurarValidacaoJwtParaRoles()
     {
