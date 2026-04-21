@@ -1,7 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using FCG.Api.Common;
-using FCG.Api.Swagger;
 using FCG.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -33,14 +32,23 @@ namespace FCG.Api.Extensions
                     new OpenApiSecurityScheme
                     {
                         Name = "Authorization",
-                        Description = "Informe o token JWT no formato: Bearer {token}",
+                        Description = "Informe apenas o token JWT, sem o prefixo Bearer.",
                         In = ParameterLocation.Header,
                         Type = SecuritySchemeType.Http,
                         Scheme = JwtBearerDefaults.AuthenticationScheme,
                         BearerFormat = "JWT"
                     });
 
-                options.OperationFilter<AuthorizeOperationFilter>();
+                options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+                {
+                    [
+                        new OpenApiSecuritySchemeReference(
+                            JwtBearerDefaults.AuthenticationScheme,
+                            document,
+                            externalResource: null)
+                    ] = []
+                });
+
             });
 
             return services;
