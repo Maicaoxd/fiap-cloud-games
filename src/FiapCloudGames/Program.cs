@@ -4,7 +4,7 @@ using FCG.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddApiPresentation();
+builder.Services.AddApiPresentation(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 

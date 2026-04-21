@@ -15,7 +15,7 @@ public sealed class JwtAccessTokenGeneratorTests
         var jwtOptions = new JwtOptions(
             "FiapCloudGames",
             "FiapCloudGames",
-            "fiap-cloud-games-test-secret-key-32-chars-minimum",
+            "maicon-guedes-dotnet-architect-level-99-cloud-games-key",
             60);
 
         var email = Email.Create("maicon@email.com");
@@ -35,7 +35,7 @@ public sealed class JwtAccessTokenGeneratorTests
         token.Audiences.ShouldContain(jwtOptions.Audience);
         token.Claims.Single(claim => claim.Type == JwtRegisteredClaimNames.Sub).Value.ShouldBe(user.Id.ToString());
         token.Claims.Single(claim => claim.Type == JwtRegisteredClaimNames.Email).Value.ShouldBe(user.Email.Value);
-        token.Claims.Single(claim => claim.Type == "role").Value.ShouldBe(UserRole.User.ToString());
+        token.Claims.Single(claim => claim.Type == JwtClaimNames.Role).Value.ShouldBe(UserRole.User.ToString());
         token.ValidTo.ShouldBeGreaterThan(DateTime.UtcNow.AddMinutes(55));
         token.ValidTo.ShouldBeLessThan(DateTime.UtcNow.AddMinutes(65));
     }

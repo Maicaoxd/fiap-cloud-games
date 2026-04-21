@@ -22,7 +22,7 @@ namespace FCG.Infrastructure.Security
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email.Value),
-                new Claim("role", user.Role.ToString())
+                new Claim(JwtClaimNames.Role, user.Role.ToString())
             };
 
             var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Secret));

@@ -1,5 +1,6 @@
 using FCG.Api.Authentication;
 using FCG.Application.Users.Authenticate;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FCG.Api.Controllers
@@ -21,6 +22,7 @@ namespace FCG.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        [AllowAnonymous]
         public async Task<ActionResult<LoginResponse>> LoginAsync(
             LoginRequest request,
             CancellationToken cancellationToken)

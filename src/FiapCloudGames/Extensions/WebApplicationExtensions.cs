@@ -28,6 +28,7 @@ namespace FCG.Api.Extensions
             }
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
 

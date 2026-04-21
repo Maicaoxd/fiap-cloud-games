@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Configuration;
+
 namespace FCG.Infrastructure.Security
 {
     public sealed class JwtOptions
@@ -32,5 +34,19 @@ namespace FCG.Infrastructure.Security
         public string Audience { get; }
         public string Secret { get; }
         public int ExpirationMinutes { get; }
+
+        public static JwtOptions Create(IConfiguration configuration)
+        {
+            var section = configuration.GetSection(SectionName);
+
+            if (!int.TryParse(section["ExpirationMinutes"], out var expirationMinutes))
+                throw new InvalidOperationException("Jwt expiration minutes was not configured.");
+
+            return new JwtOptions(
+                section["Issuer"] ?? string.Empty,
+                section["Audience"] ?? string.Empty,
+                section["Secret"] ?? string.Empty,
+                expirationMinutes);
+        }
     }
 }

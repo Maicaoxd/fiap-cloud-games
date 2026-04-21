@@ -1,5 +1,6 @@
 using FCG.Api.Users;
 using FCG.Application.Users.Register;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FCG.Api.Controllers
@@ -20,6 +21,7 @@ namespace FCG.Api.Controllers
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        [AllowAnonymous]
         public async Task<ActionResult<RegisterUserResponse>> RegisterAsync(
             RegisterUserRequest request,
             CancellationToken cancellationToken)
