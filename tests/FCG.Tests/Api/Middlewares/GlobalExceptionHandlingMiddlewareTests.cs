@@ -76,6 +76,26 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_QuandoOcorrerGameTitleAlreadyRegisteredException_DeveRetornarConflict()
+    {
+        // Arrange
+        var httpContext = CreateHttpContext();
+        var middleware = CreateMiddleware(_ =>
+            throw new GameTitleAlreadyRegisteredException());
+
+        // Act
+        await middleware.InvokeAsync(httpContext);
+
+        // Assert
+        var problemDetails = await ReadProblemDetailsAsync(httpContext);
+
+        httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status409Conflict);
+        problemDetails.Status.ShouldBe(StatusCodes.Status409Conflict);
+        problemDetails.Title.ShouldBe(ApiMessages.Conflict.Title);
+        problemDetails.Detail.ShouldBe(ApplicationMessages.Game.TitleAlreadyRegistered);
+    }
+
+    [Fact]
     public async Task InvokeAsync_QuandoOcorrerInvalidCredentialsException_DeveRetornarUnauthorized()
     {
         // Arrange

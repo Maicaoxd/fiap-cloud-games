@@ -85,6 +85,12 @@ namespace FCG.Api.Middlewares
                     ApiMessages.Conflict.Title,
                     exception.Message),
 
+                GameTitleAlreadyRegisteredException => CreateProblemDetails(
+                    context,
+                    StatusCodes.Status409Conflict,
+                    ApiMessages.Conflict.Title,
+                    exception.Message),
+
                 InvalidCredentialsException => CreateProblemDetails(
                     context,
                     StatusCodes.Status401Unauthorized,

@@ -17,6 +17,13 @@ namespace FCG.Api.Common
             public const string ConfirmPasswordRequired = "Confirmação de senha é obrigatória.";
         }
 
+        public static class Game
+        {
+            public const string TitleRequired = "Título do jogo é obrigatório.";
+            public const string DescriptionRequired = "Descrição do jogo é obrigatória.";
+            public const string PriceCannotBeNegative = "Preço do jogo não pode ser negativo.";
+        }
+
         public static class Conflict
         {
             public const string Title = "Conflito.";
