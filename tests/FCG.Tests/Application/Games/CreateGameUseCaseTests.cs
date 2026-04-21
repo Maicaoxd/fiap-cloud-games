@@ -77,4 +77,27 @@ public sealed class CreateGameUseCaseTests
         excecao.Message.ShouldBe(ApplicationMessages.Game.TitleAlreadyRegistered);
         await gameRepository.DidNotReceive().AddAsync(Arg.Any<Game>(), Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task Deve_Validar_Dominio_Antes_De_Consultar_Duplicidade_De_Titulo()
+    {
+        // Arrange
+        var gameRepository = Substitute.For<IGameRepository>();
+        var useCase = new CreateGameUseCase(gameRepository);
+        var command = new CreateGameCommand(
+            "",
+            "Simulador de fazenda e vida no campo.",
+            24.90m,
+            Guid.NewGuid());
+
+        // Act
+        var excecao = await Should.ThrowAsync<ArgumentException>(() => useCase.ExecuteAsync(command));
+
+        // Assert
+        excecao.Message.ShouldBe(FCG.Domain.Shared.DomainMessages.Game.TitleRequired);
+        await gameRepository
+            .DidNotReceive()
+            .ExistsByTitleAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
+        await gameRepository.DidNotReceive().AddAsync(Arg.Any<Game>(), Arg.Any<CancellationToken>());
+    }
 }

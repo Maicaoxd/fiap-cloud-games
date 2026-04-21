@@ -1,7 +1,5 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using FCG.Api.Common;
 using FCG.Api.Games;
-using FCG.Application.Common.Exceptions;
 using FCG.Application.Games.Create;
 using FCG.Application.Games.List;
 using FCG.Application.Games.Update;
@@ -61,7 +59,7 @@ namespace FCG.Api.Controllers
             CreateGameRequest request,
             CancellationToken cancellationToken)
         {
-            var createdBy = GetAuthenticatedUserId(User);
+            var createdBy = User.GetRequiredUserId();
 
             var command = new CreateGameCommand(
                 request.Title,
@@ -89,7 +87,7 @@ namespace FCG.Api.Controllers
             UpdateGameRequest request,
             CancellationToken cancellationToken)
         {
-            var updatedBy = GetAuthenticatedUserId(User);
+            var updatedBy = User.GetRequiredUserId();
 
             var command = new UpdateGameCommand(
                 gameId,
@@ -101,16 +99,6 @@ namespace FCG.Api.Controllers
             await _updateGameUseCase.ExecuteAsync(command, cancellationToken);
 
             return NoContent();
-        }
-
-        private static Guid GetAuthenticatedUserId(ClaimsPrincipal user)
-        {
-            var userId = user.FindFirstValue(JwtRegisteredClaimNames.Sub);
-
-            if (!Guid.TryParse(userId, out var parsedUserId))
-                throw new InvalidCredentialsException();
-
-            return parsedUserId;
         }
     }
 }

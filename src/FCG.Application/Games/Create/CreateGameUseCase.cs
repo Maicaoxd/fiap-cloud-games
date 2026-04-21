@@ -17,14 +17,14 @@ namespace FCG.Application.Games.Create
             CreateGameCommand command,
             CancellationToken cancellationToken = default)
         {
-            if (await _gameRepository.ExistsByTitleAsync(command.Title, cancellationToken))
-                throw new GameTitleAlreadyRegisteredException();
-
             var game = Game.Create(
                 command.Title,
                 command.Description,
                 command.Price,
                 command.CreatedBy);
+
+            if (await _gameRepository.ExistsByTitleAsync(game.Title, cancellationToken))
+                throw new GameTitleAlreadyRegisteredException();
 
             await _gameRepository.AddAsync(game, cancellationToken);
 

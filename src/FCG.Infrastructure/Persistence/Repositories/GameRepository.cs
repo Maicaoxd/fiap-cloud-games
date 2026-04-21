@@ -17,6 +17,9 @@ namespace FCG.Infrastructure.Persistence.Repositories
             string title,
             CancellationToken cancellationToken = default)
         {
+            if (string.IsNullOrWhiteSpace(title))
+                return false;
+
             var normalizedTitle = title.Trim().ToLower();
 
             return await _dbContext.Games
@@ -30,6 +33,9 @@ namespace FCG.Infrastructure.Persistence.Repositories
             Guid gameId,
             CancellationToken cancellationToken = default)
         {
+            if (string.IsNullOrWhiteSpace(title))
+                return false;
+
             var normalizedTitle = title.Trim().ToLower();
 
             return await _dbContext.Games
@@ -65,6 +71,7 @@ namespace FCG.Infrastructure.Persistence.Repositories
 
         public async Task UpdateAsync(Game game, CancellationToken cancellationToken = default)
         {
+            _dbContext.Games.Update(game);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
     }
