@@ -85,6 +85,18 @@ namespace FCG.Api.Middlewares
                     ApiMessages.Conflict.Title,
                     exception.Message),
 
+                InvalidCredentialsException => CreateProblemDetails(
+                    context,
+                    StatusCodes.Status401Unauthorized,
+                    ApiMessages.Unauthorized.Title,
+                    exception.Message),
+
+                InactiveUserException => CreateProblemDetails(
+                    context,
+                    StatusCodes.Status403Forbidden,
+                    ApiMessages.Forbidden.Title,
+                    exception.Message),
+
                 _ => CreateProblemDetails(
                     context,
                     StatusCodes.Status500InternalServerError,

@@ -22,6 +22,16 @@ namespace FCG.Api.Common
             public const string Title = "Conflito.";
         }
 
+        public static class Unauthorized
+        {
+            public const string Title = "Não autorizado.";
+        }
+
+        public static class Forbidden
+        {
+            public const string Title = "Acesso negado.";
+        }
+
         public static class InternalServerError
         {
             public const string Title = "Erro interno.";

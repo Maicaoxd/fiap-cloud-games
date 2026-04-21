@@ -77,6 +77,48 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
         problemDetails.Detail.ShouldBe(ApplicationMessages.User.EmailAlreadyRegistered);
     }
 
+    [Trait("Category", "Unit")]
+    [Fact]
+    public async Task InvokeAsync_QuandoOcorrerInvalidCredentialsException_DeveRetornarUnauthorized()
+    {
+        // Arrange
+        var httpContext = CreateHttpContext();
+        var middleware = CreateMiddleware(_ =>
+            throw new InvalidCredentialsException());
+
+        // Act
+        await middleware.InvokeAsync(httpContext);
+
+        // Assert
+        var problemDetails = await ReadProblemDetailsAsync(httpContext);
+
+        httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status401Unauthorized);
+        problemDetails.Status.ShouldBe(StatusCodes.Status401Unauthorized);
+        problemDetails.Title.ShouldBe(ApiMessages.Unauthorized.Title);
+        problemDetails.Detail.ShouldBe(ApplicationMessages.Authentication.InvalidCredentials);
+    }
+
+    [Trait("Category", "Unit")]
+    [Fact]
+    public async Task InvokeAsync_QuandoOcorrerInactiveUserException_DeveRetornarForbidden()
+    {
+        // Arrange
+        var httpContext = CreateHttpContext();
+        var middleware = CreateMiddleware(_ =>
+            throw new InactiveUserException());
+
+        // Act
+        await middleware.InvokeAsync(httpContext);
+
+        // Assert
+        var problemDetails = await ReadProblemDetailsAsync(httpContext);
+
+        httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status403Forbidden);
+        problemDetails.Status.ShouldBe(StatusCodes.Status403Forbidden);
+        problemDetails.Title.ShouldBe(ApiMessages.Forbidden.Title);
+        problemDetails.Detail.ShouldBe(ApplicationMessages.Authentication.InactiveUser);
+    }
+
     private static DefaultHttpContext CreateHttpContext()
     {
         return new DefaultHttpContext

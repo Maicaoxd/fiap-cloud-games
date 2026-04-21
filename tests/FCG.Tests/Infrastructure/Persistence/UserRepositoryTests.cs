@@ -98,6 +98,71 @@ public sealed class UserRepositoryTests : IAsyncLifetime
         exists.ShouldBeFalse();
     }
 
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task GetByEmailAsync_QuandoEmailEstiverCadastrado_DeveRetornarUsuario()
+    {
+        // Arrange
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var user = User.Create("Maicon Guedes", email, passwordHash);
+
+        await using var dbContext = CreateDbContext();
+        var repository = new UserRepository(dbContext);
+
+        await repository.AddAsync(user);
+
+        // Act
+        var foundUser = await repository.GetByEmailAsync(email);
+
+        // Assert
+        foundUser.ShouldNotBeNull();
+        foundUser!.Id.ShouldBe(user.Id);
+        foundUser.Name.ShouldBe("Maicon Guedes");
+        foundUser.Email.ShouldBe(email);
+        foundUser.PasswordHash.ShouldBe(passwordHash);
+        foundUser.Role.ShouldBe(UserRole.User);
+        foundUser.IsActive.ShouldBeTrue();
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task GetByEmailAsync_QuandoEmailForInformadoComEspacosEMaiusculas_DeveRetornarUsuario()
+    {
+        // Arrange
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var user = User.Create("Maicon Guedes", email, passwordHash);
+
+        await using var dbContext = CreateDbContext();
+        var repository = new UserRepository(dbContext);
+
+        await repository.AddAsync(user);
+
+        // Act
+        var foundUser = await repository.GetByEmailAsync(Email.Create("  MAICON@EMAIL.COM  "));
+
+        // Assert
+        foundUser.ShouldNotBeNull();
+        foundUser!.Id.ShouldBe(user.Id);
+        foundUser.Email.ShouldBe(email);
+    }
+
+    [Fact]
+    [Trait("Category", "Integration")]
+    public async Task GetByEmailAsync_QuandoEmailNaoEstiverCadastrado_DeveRetornarNulo()
+    {
+        // Arrange
+        await using var dbContext = CreateDbContext();
+        var repository = new UserRepository(dbContext);
+
+        // Act
+        var foundUser = await repository.GetByEmailAsync(Email.Create("maicon@email.com"));
+
+        // Assert
+        foundUser.ShouldBeNull();
+    }
+
     private FcgDbContext CreateDbContext()
     {
         return new FcgDbContext(_dbContextOptions);

@@ -20,6 +20,12 @@ namespace FCG.Infrastructure.Persistence.Repositories
                 .AnyAsync(user => user.Email == email, cancellationToken);
         }
 
+        public async Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Users
+                .SingleOrDefaultAsync(user => user.Email == email, cancellationToken);
+        }
+
         public async Task AddAsync(User user, CancellationToken cancellationToken = default)
         {
             await _dbContext.Users.AddAsync(user, cancellationToken);
