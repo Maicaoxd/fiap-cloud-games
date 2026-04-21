@@ -6,6 +6,8 @@ namespace FCG.Application.Abstractions.Persistence
     {
         Task<bool> ExistsByTitleAsync(string title, CancellationToken cancellationToken = default);
 
+        Task<IReadOnlyCollection<Game>> ListActiveAsync(CancellationToken cancellationToken = default);
+
         Task AddAsync(Game game, CancellationToken cancellationToken = default);
     }
 }

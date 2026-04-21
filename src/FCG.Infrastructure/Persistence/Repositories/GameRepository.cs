@@ -25,6 +25,16 @@ namespace FCG.Infrastructure.Persistence.Repositories
                     cancellationToken);
         }
 
+        public async Task<IReadOnlyCollection<Game>> ListActiveAsync(
+            CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Games
+                .AsNoTracking()
+                .Where(game => game.IsActive)
+                .OrderBy(game => game.Title)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task AddAsync(Game game, CancellationToken cancellationToken = default)
         {
             await _dbContext.Games.AddAsync(game, cancellationToken);

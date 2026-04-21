@@ -3,6 +3,7 @@ using System.Security.Claims;
 using FCG.Api.Games;
 using FCG.Application.Common.Exceptions;
 using FCG.Application.Games.Create;
+using FCG.Application.Games.List;
 using FCG.Domain.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +15,34 @@ namespace FCG.Api.Controllers
     public sealed class GamesController : ControllerBase
     {
         private readonly CreateGameUseCase _createGameUseCase;
+        private readonly ListGamesUseCase _listGamesUseCase;
 
-        public GamesController(CreateGameUseCase createGameUseCase)
+        public GamesController(
+            CreateGameUseCase createGameUseCase,
+            ListGamesUseCase listGamesUseCase)
         {
             _createGameUseCase = createGameUseCase;
+            _listGamesUseCase = listGamesUseCase;
+        }
+
+        [HttpGet]
+        [Authorize]
+        [ProducesResponseType(typeof(IReadOnlyCollection<ListGameResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IReadOnlyCollection<ListGameResponse>>> ListAsync(
+            CancellationToken cancellationToken)
+        {
+            var result = await _listGamesUseCase.ExecuteAsync(cancellationToken);
+            var response = result
+                .Select(game => new ListGameResponse(
+                    game.GameId,
+                    game.Title,
+                    game.Description,
+                    game.Price))
+                .ToList();
+
+            return Ok(response);
         }
 
         [HttpPost]

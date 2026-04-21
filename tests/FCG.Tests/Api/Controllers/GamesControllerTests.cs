@@ -4,6 +4,7 @@ using FCG.Api.Controllers;
 using FCG.Api.Games;
 using FCG.Application.Abstractions.Persistence;
 using FCG.Application.Games.Create;
+using FCG.Application.Games.List;
 using FCG.Domain.Games;
 using FCG.Domain.Users;
 using FCG.Infrastructure.Security;
@@ -39,7 +40,8 @@ public sealed class GamesControllerTests
             });
 
         var useCase = new CreateGameUseCase(gameRepository);
-        var controller = new GamesController(useCase)
+        var listUseCase = new ListGamesUseCase(gameRepository);
+        var controller = new GamesController(useCase, listUseCase)
         {
             ControllerContext = new ControllerContext
             {
@@ -67,6 +69,66 @@ public sealed class GamesControllerTests
         addedGame.Description.ShouldBe("Simulador de fazenda e vida no campo.");
         addedGame.Price.ShouldBe(24.90m);
         await gameRepository.Received(1).AddAsync(Arg.Any<Game>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task ListAsync_QuandoUsuarioEstiverAutenticado_DeveRetornarOkComJogos()
+    {
+        // Arrange
+        var firstGame = Game.Create(
+            "Hades",
+            "Roguelike de ação.",
+            49.90m,
+            Guid.NewGuid());
+        var secondGame = Game.Create(
+            "Stardew Valley",
+            "Simulador de fazenda e vida no campo.",
+            24.90m,
+            Guid.NewGuid());
+
+        var gameRepository = Substitute.For<IGameRepository>();
+        gameRepository
+            .ListActiveAsync(Arg.Any<CancellationToken>())
+            .Returns(new[] { firstGame, secondGame });
+
+        var createUseCase = new CreateGameUseCase(gameRepository);
+        var listUseCase = new ListGamesUseCase(gameRepository);
+        var controller = new GamesController(createUseCase, listUseCase)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = CreateHttpContext(Guid.NewGuid(), nameof(UserRole.User))
+            }
+        };
+
+        // Act
+        var actionResult = await controller.ListAsync(CancellationToken.None);
+
+        // Assert
+        var okResult = actionResult.Result.ShouldBeOfType<OkObjectResult>();
+        var response = okResult.Value.ShouldBeOfType<List<ListGameResponse>>();
+
+        response.Count.ShouldBe(2);
+        response.ShouldContain(game => game.GameId == firstGame.Id);
+        response.ShouldContain(game => game.GameId == secondGame.Id);
+        await gameRepository.Received(1).ListActiveAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public void ListAsync_DeveExigirUsuarioAutenticado()
+    {
+        // Arrange
+        var method = typeof(GamesController)
+            .GetMethod(nameof(GamesController.ListAsync));
+
+        // Act
+        var authorizeAttribute = method!
+            .GetCustomAttributes(typeof(AuthorizeAttribute), inherit: false)
+            .Cast<AuthorizeAttribute>()
+            .Single();
+
+        // Assert
+        authorizeAttribute.Roles.ShouldBeNull();
     }
 
     [Fact]
@@ -108,12 +170,31 @@ public sealed class GamesControllerTests
         responseTypes[StatusCodes.Status500InternalServerError].Type.ShouldBe(typeof(ProblemDetails));
     }
 
-    private static DefaultHttpContext CreateHttpContext(Guid userId)
+    [Fact]
+    public void ListAsync_DeveDocumentarRespostasEsperadasNoSwagger()
+    {
+        // Arrange
+        var method = typeof(GamesController)
+            .GetMethod(nameof(GamesController.ListAsync));
+
+        // Act
+        var responseTypes = method!
+            .GetCustomAttributes(typeof(ProducesResponseTypeAttribute), inherit: false)
+            .Cast<ProducesResponseTypeAttribute>()
+            .ToDictionary(attribute => attribute.StatusCode);
+
+        // Assert
+        responseTypes[StatusCodes.Status200OK].Type.ShouldBe(typeof(IReadOnlyCollection<ListGameResponse>));
+        responseTypes[StatusCodes.Status401Unauthorized].Type.ShouldBe(typeof(ProblemDetails));
+        responseTypes[StatusCodes.Status500InternalServerError].Type.ShouldBe(typeof(ProblemDetails));
+    }
+
+    private static DefaultHttpContext CreateHttpContext(Guid userId, string role = nameof(UserRole.Administrator))
     {
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
-            new Claim(JwtClaimNames.Role, nameof(UserRole.Administrator))
+            new Claim(JwtClaimNames.Role, role)
         };
 
         return new DefaultHttpContext

@@ -100,6 +100,44 @@ public sealed class GameRepositoryTests : IAsyncLifetime
         exists.ShouldBeFalse();
     }
 
+    [Fact]
+    public async Task ListActiveAsync_QuandoExistiremJogosAtivosEInativos_DeveRetornarApenasAtivosOrdenadosPorTitulo()
+    {
+        // Arrange
+        var createdBy = Guid.NewGuid();
+        var inactiveGame = Game.Create(
+            "Zelda",
+            "Aventura.",
+            299.90m,
+            createdBy);
+        inactiveGame.Deactivate(createdBy);
+
+        var firstActiveGame = Game.Create(
+            "Hades",
+            "Roguelike de ação.",
+            49.90m,
+            createdBy);
+        var secondActiveGame = Game.Create(
+            "Stardew Valley",
+            "Simulador de fazenda e vida no campo.",
+            24.90m,
+            createdBy);
+
+        await using var dbContext = CreateDbContext();
+        await dbContext.Games.AddRangeAsync(inactiveGame, secondActiveGame, firstActiveGame);
+        await dbContext.SaveChangesAsync();
+
+        var repository = new GameRepository(dbContext);
+
+        // Act
+        var games = await repository.ListActiveAsync();
+
+        // Assert
+        games.Count.ShouldBe(2);
+        games.Select(game => game.Title).ShouldBe(["Hades", "Stardew Valley"]);
+        games.ShouldNotContain(game => game.Title == "Zelda");
+    }
+
     private FcgDbContext CreateDbContext()
     {
         return new FcgDbContext(_dbContextOptions);
