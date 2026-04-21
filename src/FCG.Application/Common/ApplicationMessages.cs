@@ -13,5 +13,10 @@ namespace FCG.Application.Common
             public const string InvalidCredentials = "E-mail ou senha inválidos.";
             public const string InactiveUser = "Usuário inativo.";
         }
+
+        public static class Game
+        {
+            public const string TitleAlreadyRegistered = "Jogo já cadastrado com este título.";
+        }
     }
 }

@@ -22,6 +22,7 @@ namespace FCG.Infrastructure
                 options.UseSqlServer(connectionString));
 
             services.AddSingleton(JwtOptions.Create(configuration));
+            services.AddScoped<IGameRepository, GameRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
             services.AddScoped<IAccessTokenGenerator, JwtAccessTokenGenerator>();
