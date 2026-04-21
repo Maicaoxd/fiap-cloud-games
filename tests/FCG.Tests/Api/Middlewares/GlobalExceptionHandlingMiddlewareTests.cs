@@ -5,6 +5,8 @@ using FCG.Application.Common.Exceptions;
 using FCG.Domain.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 
 namespace FCG.Tests.Api.Middlewares;
 
@@ -16,7 +18,7 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
     {
         // Arrange
         var httpContext = CreateHttpContext();
-        var middleware = new GlobalExceptionHandlingMiddleware(_ =>
+        var middleware = CreateMiddleware(_ =>
             throw new ArgumentException(DomainMessages.Email.InvalidFormat));
 
         // Act
@@ -33,11 +35,32 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
 
     [Trait("Category", "Unit")]
     [Fact]
+    public async Task InvokeAsync_QuandoOcorrerBadHttpRequestException_DeveRetornarBadRequest()
+    {
+        // Arrange
+        var httpContext = CreateHttpContext();
+        var middleware = CreateMiddleware(_ =>
+            throw new BadHttpRequestException("Required request body is missing."));
+
+        // Act
+        await middleware.InvokeAsync(httpContext);
+
+        // Assert
+        var problemDetails = await ReadProblemDetailsAsync(httpContext);
+
+        httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
+        problemDetails.Status.ShouldBe(StatusCodes.Status400BadRequest);
+        problemDetails.Title.ShouldBe("Erro de validação.");
+        problemDetails.Detail.ShouldBe("O corpo da requisição é obrigatório.");
+    }
+
+    [Trait("Category", "Unit")]
+    [Fact]
     public async Task InvokeAsync_QuandoOcorrerEmailAlreadyRegisteredException_DeveRetornarConflict()
     {
         // Arrange
         var httpContext = CreateHttpContext();
-        var middleware = new GlobalExceptionHandlingMiddleware(_ =>
+        var middleware = CreateMiddleware(_ =>
             throw new EmailAlreadyRegisteredException());
 
         // Act
@@ -65,6 +88,13 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
                 Path = "/api/users"
             }
         };
+    }
+
+    private static GlobalExceptionHandlingMiddleware CreateMiddleware(RequestDelegate next)
+    {
+        var logger = Substitute.For<ILogger<GlobalExceptionHandlingMiddleware>>();
+
+        return new GlobalExceptionHandlingMiddleware(next, logger);
     }
 
     private static async Task<ProblemDetails> ReadProblemDetailsAsync(HttpContext httpContext)

@@ -6,10 +6,14 @@ namespace FCG.Api.Middlewares
     public sealed class GlobalExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger<GlobalExceptionHandlingMiddleware> _logger;
 
-        public GlobalExceptionHandlingMiddleware(RequestDelegate next)
+        public GlobalExceptionHandlingMiddleware(
+            RequestDelegate next,
+            ILogger<GlobalExceptionHandlingMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -20,6 +24,12 @@ namespace FCG.Api.Middlewares
             }
             catch (Exception exception)
             {
+                _logger.LogError(
+                    exception,
+                    "Unhandled exception while processing {Method} {Path}.",
+                    context.Request.Method,
+                    context.Request.Path);
+
                 await HandleExceptionAsync(context, exception);
             }
         }
@@ -37,6 +47,12 @@ namespace FCG.Api.Middlewares
         {
             return exception switch
             {
+                BadHttpRequestException => CreateProblemDetails(
+                    context,
+                    StatusCodes.Status400BadRequest,
+                    "Erro de validação.",
+                    "O corpo da requisição é obrigatório."),
+
                 ArgumentException => CreateProblemDetails(
                     context,
                     StatusCodes.Status400BadRequest,
