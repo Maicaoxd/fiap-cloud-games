@@ -4,6 +4,7 @@ using FCG.Api.Common;
 using FCG.Api.Swagger;
 using FCG.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 
@@ -70,9 +71,53 @@ namespace FCG.Api.Extensions
                         RoleClaimType = JwtClaimNames.Role,
                         ClockSkew = TimeSpan.Zero
                     };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnChallenge = async context =>
+                        {
+                            context.HandleResponse();
+
+                            await WriteProblemDetailsAsync(
+                                context.HttpContext,
+                                StatusCodes.Status401Unauthorized,
+                                ApiMessages.Unauthorized.Title,
+                                ApiMessages.Unauthorized.Detail);
+                        },
+                        OnForbidden = async context =>
+                        {
+                            await WriteProblemDetailsAsync(
+                                context.HttpContext,
+                                StatusCodes.Status403Forbidden,
+                                ApiMessages.Forbidden.Title,
+                                ApiMessages.Forbidden.Detail);
+                        }
+                    };
                 });
 
             services.AddAuthorization();
+        }
+
+        private static async Task WriteProblemDetailsAsync(
+            HttpContext httpContext,
+            int statusCode,
+            string title,
+            string detail)
+        {
+            httpContext.Response.StatusCode = statusCode;
+
+            var problemDetails = new ProblemDetails
+            {
+                Status = statusCode,
+                Title = title,
+                Detail = detail,
+                Instance = httpContext.Request.Path
+            };
+
+            await httpContext.Response.WriteAsJsonAsync(
+                problemDetails,
+                options: null,
+                contentType: "application/problem+json");
         }
 
     }

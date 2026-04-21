@@ -32,11 +32,13 @@ namespace FCG.Api.Common
         public static class Unauthorized
         {
             public const string Title = "Não autorizado.";
+            public const string Detail = "A autenticação é necessária para acessar este recurso.";
         }
 
         public static class Forbidden
         {
             public const string Title = "Acesso negado.";
+            public const string Detail = "Você não tem permissão para acessar este recurso.";
         }
 
         public static class InternalServerError

@@ -1,8 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json;
+using FCG.Api.Common;
 using FCG.Api.Extensions;
 using FCG.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -60,6 +64,77 @@ public sealed class ServiceCollectionExtensionsTests
         jwtBearerOptions.TokenValidationParameters.ClockSkew.ShouldBe(TimeSpan.Zero);
     }
 
+    [Fact]
+    public async Task AddApiPresentation_QuandoJwtChallenge_DeveRetornarProblemDetailsUnauthorized()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var configuration = CreateConfiguration();
+
+        services.AddApiPresentation(configuration);
+
+        using var serviceProvider = services.BuildServiceProvider();
+        var jwtBearerOptions = serviceProvider
+            .GetRequiredService<IOptionsMonitor<JwtBearerOptions>>()
+            .Get(JwtBearerDefaults.AuthenticationScheme);
+
+        var httpContext = CreateHttpContext("/api/games");
+        var authenticationScheme = CreateAuthenticationScheme();
+        var context = new JwtBearerChallengeContext(
+            httpContext,
+            authenticationScheme,
+            jwtBearerOptions,
+            new AuthenticationProperties());
+
+        // Act
+        await jwtBearerOptions.Events.OnChallenge(context);
+
+        // Assert
+        var problemDetails = await ReadProblemDetailsAsync(httpContext);
+
+        httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status401Unauthorized);
+        httpContext.Response.ContentType.ShouldStartWith("application/problem+json");
+        problemDetails.Status.ShouldBe(StatusCodes.Status401Unauthorized);
+        problemDetails.Title.ShouldBe(ApiMessages.Unauthorized.Title);
+        problemDetails.Detail.ShouldBe(ApiMessages.Unauthorized.Detail);
+        problemDetails.Instance.ShouldBe("/api/games");
+    }
+
+    [Fact]
+    public async Task AddApiPresentation_QuandoJwtForbidden_DeveRetornarProblemDetailsForbidden()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var configuration = CreateConfiguration();
+
+        services.AddApiPresentation(configuration);
+
+        using var serviceProvider = services.BuildServiceProvider();
+        var jwtBearerOptions = serviceProvider
+            .GetRequiredService<IOptionsMonitor<JwtBearerOptions>>()
+            .Get(JwtBearerDefaults.AuthenticationScheme);
+
+        var httpContext = CreateHttpContext("/api/games");
+        var authenticationScheme = CreateAuthenticationScheme();
+        var context = new ForbiddenContext(
+            httpContext,
+            authenticationScheme,
+            jwtBearerOptions);
+
+        // Act
+        await jwtBearerOptions.Events.OnForbidden(context);
+
+        // Assert
+        var problemDetails = await ReadProblemDetailsAsync(httpContext);
+
+        httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status403Forbidden);
+        httpContext.Response.ContentType.ShouldStartWith("application/problem+json");
+        problemDetails.Status.ShouldBe(StatusCodes.Status403Forbidden);
+        problemDetails.Title.ShouldBe(ApiMessages.Forbidden.Title);
+        problemDetails.Detail.ShouldBe(ApiMessages.Forbidden.Detail);
+        problemDetails.Instance.ShouldBe("/api/games");
+    }
+
     private static IConfiguration CreateConfiguration()
     {
         return new ConfigurationBuilder()
@@ -71,5 +146,39 @@ public sealed class ServiceCollectionExtensionsTests
                 ["Jwt:ExpirationMinutes"] = "60"
             })
             .Build();
+    }
+
+    private static DefaultHttpContext CreateHttpContext(string path)
+    {
+        return new DefaultHttpContext
+        {
+            Request =
+            {
+                Path = path
+            },
+            Response =
+            {
+                Body = new MemoryStream()
+            }
+        };
+    }
+
+    private static AuthenticationScheme CreateAuthenticationScheme()
+    {
+        return new AuthenticationScheme(
+            JwtBearerDefaults.AuthenticationScheme,
+            JwtBearerDefaults.AuthenticationScheme,
+            typeof(JwtBearerHandler));
+    }
+
+    private static async Task<ProblemDetails> ReadProblemDetailsAsync(HttpContext httpContext)
+    {
+        httpContext.Response.Body.Position = 0;
+
+        var problemDetails = await JsonSerializer.DeserializeAsync<ProblemDetails>(
+            httpContext.Response.Body,
+            new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+        return problemDetails!;
     }
 }
