@@ -11,6 +11,8 @@ namespace FCG.Api.Extensions
                 .GetSection(ApiOptions.SectionName)
                 .Get<ApiOptions>() ?? new ApiOptions();
 
+            app.UseMiddleware<StructuredRequestLoggingMiddleware>();
+
             if (app.Environment.IsDevelopment() && apiOptions.UseDeveloperExceptionPage)
             {
                 app.UseDeveloperExceptionPage();
