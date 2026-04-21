@@ -4,6 +4,7 @@ using FCG.Api.Games;
 using FCG.Application.Common.Exceptions;
 using FCG.Application.Games.Create;
 using FCG.Application.Games.List;
+using FCG.Application.Games.Update;
 using FCG.Domain.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,13 +17,16 @@ namespace FCG.Api.Controllers
     {
         private readonly CreateGameUseCase _createGameUseCase;
         private readonly ListGamesUseCase _listGamesUseCase;
+        private readonly UpdateGameUseCase _updateGameUseCase;
 
         public GamesController(
             CreateGameUseCase createGameUseCase,
-            ListGamesUseCase listGamesUseCase)
+            ListGamesUseCase listGamesUseCase,
+            UpdateGameUseCase updateGameUseCase)
         {
             _createGameUseCase = createGameUseCase;
             _listGamesUseCase = listGamesUseCase;
+            _updateGameUseCase = updateGameUseCase;
         }
 
         [HttpGet]
@@ -69,6 +73,34 @@ namespace FCG.Api.Controllers
             var response = new CreateGameResponse(result.GameId);
 
             return Created($"/api/games/{response.GameId}", response);
+        }
+
+        [HttpPut("{gameId:guid}")]
+        [Authorize(Roles = nameof(UserRole.Administrator))]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateAsync(
+            Guid gameId,
+            UpdateGameRequest request,
+            CancellationToken cancellationToken)
+        {
+            var updatedBy = GetAuthenticatedUserId(User);
+
+            var command = new UpdateGameCommand(
+                gameId,
+                request.Title,
+                request.Description,
+                request.Price,
+                updatedBy);
+
+            await _updateGameUseCase.ExecuteAsync(command, cancellationToken);
+
+            return NoContent();
         }
 
         private static Guid GetAuthenticatedUserId(ClaimsPrincipal user)

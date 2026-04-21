@@ -29,6 +29,11 @@ namespace FCG.Api.Common
             public const string Title = "Conflito.";
         }
 
+        public static class NotFound
+        {
+            public const string Title = "Recurso não encontrado.";
+        }
+
         public static class Unauthorized
         {
             public const string Title = "Não autorizado.";

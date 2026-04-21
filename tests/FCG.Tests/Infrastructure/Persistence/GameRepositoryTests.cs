@@ -138,6 +138,118 @@ public sealed class GameRepositoryTests : IAsyncLifetime
         games.ShouldNotContain(game => game.Title == "Zelda");
     }
 
+    [Fact]
+    public async Task GetByIdAsync_QuandoJogoExistir_DeveRetornarJogo()
+    {
+        // Arrange
+        var game = Game.Create(
+            "Hades",
+            "Roguelike de ação.",
+            49.90m,
+            Guid.NewGuid());
+
+        await using var dbContext = CreateDbContext();
+        await dbContext.Games.AddAsync(game);
+        await dbContext.SaveChangesAsync();
+
+        var repository = new GameRepository(dbContext);
+
+        // Act
+        var foundGame = await repository.GetByIdAsync(game.Id);
+
+        // Assert
+        foundGame.ShouldNotBeNull();
+        foundGame!.Id.ShouldBe(game.Id);
+    }
+
+    [Fact]
+    public async Task ExistsByTitleForAnotherGameAsync_QuandoTituloPertencerAoMesmoJogo_DeveRetornarFalso()
+    {
+        // Arrange
+        var game = Game.Create(
+            "Hades",
+            "Roguelike de ação.",
+            49.90m,
+            Guid.NewGuid());
+
+        await using var dbContext = CreateDbContext();
+        await dbContext.Games.AddAsync(game);
+        await dbContext.SaveChangesAsync();
+
+        var repository = new GameRepository(dbContext);
+
+        // Act
+        var exists = await repository.ExistsByTitleForAnotherGameAsync(" HADES ", game.Id);
+
+        // Assert
+        exists.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task ExistsByTitleForAnotherGameAsync_QuandoTituloPertencerAOutroJogo_DeveRetornarVerdadeiro()
+    {
+        // Arrange
+        var firstGame = Game.Create(
+            "Hades",
+            "Roguelike de ação.",
+            49.90m,
+            Guid.NewGuid());
+        var secondGame = Game.Create(
+            "Stardew Valley",
+            "Simulador de fazenda.",
+            24.90m,
+            Guid.NewGuid());
+
+        await using var dbContext = CreateDbContext();
+        await dbContext.Games.AddRangeAsync(firstGame, secondGame);
+        await dbContext.SaveChangesAsync();
+
+        var repository = new GameRepository(dbContext);
+
+        // Act
+        var exists = await repository.ExistsByTitleForAnotherGameAsync(" HADES ", secondGame.Id);
+
+        // Assert
+        exists.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateAsync_QuandoJogoForAtualizado_DevePersistirAlteracoes()
+    {
+        // Arrange
+        var createdBy = Guid.NewGuid();
+        var updatedBy = Guid.NewGuid();
+        var game = Game.Create(
+            "Stardew Valley",
+            "Simulador de fazenda.",
+            24.90m,
+            createdBy);
+
+        await using var dbContext = CreateDbContext();
+        await dbContext.Games.AddAsync(game);
+        await dbContext.SaveChangesAsync();
+
+        var repository = new GameRepository(dbContext);
+        game.Update(
+            "Stardew Valley Deluxe",
+            "Simulador de fazenda com conteúdo extra.",
+            39.90m,
+            updatedBy);
+
+        // Act
+        await repository.UpdateAsync(game);
+
+        // Assert
+        await using var assertionDbContext = CreateDbContext();
+        var persistedGame = await assertionDbContext.Games.AsNoTracking().SingleAsync();
+
+        persistedGame.Title.ShouldBe("Stardew Valley Deluxe");
+        persistedGame.Description.ShouldBe("Simulador de fazenda com conteúdo extra.");
+        persistedGame.Price.ShouldBe(39.90m);
+        persistedGame.UpdatedBy.ShouldBe(updatedBy);
+        persistedGame.UpdatedAt.ShouldNotBeNull();
+    }
+
     private FcgDbContext CreateDbContext()
     {
         return new FcgDbContext(_dbContextOptions);

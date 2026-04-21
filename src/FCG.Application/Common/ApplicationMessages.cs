@@ -17,6 +17,7 @@ namespace FCG.Application.Common
         public static class Game
         {
             public const string TitleAlreadyRegistered = "Jogo já cadastrado com este título.";
+            public const string NotFound = "Jogo não encontrado.";
         }
     }
 }

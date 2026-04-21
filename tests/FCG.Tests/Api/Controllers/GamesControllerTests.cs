@@ -5,6 +5,7 @@ using FCG.Api.Games;
 using FCG.Application.Abstractions.Persistence;
 using FCG.Application.Games.Create;
 using FCG.Application.Games.List;
+using FCG.Application.Games.Update;
 using FCG.Domain.Games;
 using FCG.Domain.Users;
 using FCG.Infrastructure.Security;
@@ -41,7 +42,8 @@ public sealed class GamesControllerTests
 
         var useCase = new CreateGameUseCase(gameRepository);
         var listUseCase = new ListGamesUseCase(gameRepository);
-        var controller = new GamesController(useCase, listUseCase)
+        var updateUseCase = new UpdateGameUseCase(gameRepository);
+        var controller = new GamesController(useCase, listUseCase, updateUseCase)
         {
             ControllerContext = new ControllerContext
             {
@@ -93,7 +95,8 @@ public sealed class GamesControllerTests
 
         var createUseCase = new CreateGameUseCase(gameRepository);
         var listUseCase = new ListGamesUseCase(gameRepository);
-        var controller = new GamesController(createUseCase, listUseCase)
+        var updateUseCase = new UpdateGameUseCase(gameRepository);
+        var controller = new GamesController(createUseCase, listUseCase, updateUseCase)
         {
             ControllerContext = new ControllerContext
             {
@@ -112,6 +115,52 @@ public sealed class GamesControllerTests
         response.ShouldContain(game => game.GameId == firstGame.Id);
         response.ShouldContain(game => game.GameId == secondGame.Id);
         await gameRepository.Received(1).ListActiveAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task UpdateAsync_QuandoAdminAutenticadoEJogoExistir_DeveRetornarNoContent()
+    {
+        // Arrange
+        var adminId = Guid.NewGuid();
+        var game = Game.Create(
+            "Stardew Valley",
+            "Simulador de fazenda.",
+            24.90m,
+            Guid.NewGuid());
+        var gameRepository = Substitute.For<IGameRepository>();
+
+        gameRepository
+            .GetByIdAsync(game.Id, Arg.Any<CancellationToken>())
+            .Returns(game);
+        gameRepository
+            .ExistsByTitleForAnotherGameAsync(Arg.Any<string>(), game.Id, Arg.Any<CancellationToken>())
+            .Returns(false);
+
+        var createUseCase = new CreateGameUseCase(gameRepository);
+        var listUseCase = new ListGamesUseCase(gameRepository);
+        var updateUseCase = new UpdateGameUseCase(gameRepository);
+        var controller = new GamesController(createUseCase, listUseCase, updateUseCase)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = CreateHttpContext(adminId)
+            }
+        };
+        var request = new UpdateGameRequest(
+            "Stardew Valley Deluxe",
+            "Simulador de fazenda com conteúdo extra.",
+            39.90m);
+
+        // Act
+        var actionResult = await controller.UpdateAsync(game.Id, request, CancellationToken.None);
+
+        // Assert
+        actionResult.ShouldBeOfType<NoContentResult>();
+        game.Title.ShouldBe("Stardew Valley Deluxe");
+        game.Description.ShouldBe("Simulador de fazenda com conteúdo extra.");
+        game.Price.ShouldBe(39.90m);
+        game.UpdatedBy.ShouldBe(adminId);
+        await gameRepository.Received(1).UpdateAsync(game, Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -137,6 +186,23 @@ public sealed class GamesControllerTests
         // Arrange
         var method = typeof(GamesController)
             .GetMethod(nameof(GamesController.CreateAsync));
+
+        // Act
+        var authorizeAttribute = method!
+            .GetCustomAttributes(typeof(AuthorizeAttribute), inherit: false)
+            .Cast<AuthorizeAttribute>()
+            .Single();
+
+        // Assert
+        authorizeAttribute.Roles.ShouldBe(nameof(UserRole.Administrator));
+    }
+
+    [Fact]
+    public void UpdateAsync_DeveExigirRoleAdministrator()
+    {
+        // Arrange
+        var method = typeof(GamesController)
+            .GetMethod(nameof(GamesController.UpdateAsync));
 
         // Act
         var authorizeAttribute = method!
@@ -186,6 +252,29 @@ public sealed class GamesControllerTests
         // Assert
         responseTypes[StatusCodes.Status200OK].Type.ShouldBe(typeof(IReadOnlyCollection<ListGameResponse>));
         responseTypes[StatusCodes.Status401Unauthorized].Type.ShouldBe(typeof(ProblemDetails));
+        responseTypes[StatusCodes.Status500InternalServerError].Type.ShouldBe(typeof(ProblemDetails));
+    }
+
+    [Fact]
+    public void UpdateAsync_DeveDocumentarRespostasEsperadasNoSwagger()
+    {
+        // Arrange
+        var method = typeof(GamesController)
+            .GetMethod(nameof(GamesController.UpdateAsync));
+
+        // Act
+        var responseTypes = method!
+            .GetCustomAttributes(typeof(ProducesResponseTypeAttribute), inherit: false)
+            .Cast<ProducesResponseTypeAttribute>()
+            .ToDictionary(attribute => attribute.StatusCode);
+
+        // Assert
+        responseTypes[StatusCodes.Status204NoContent].Type.ShouldBe(typeof(void));
+        responseTypes[StatusCodes.Status400BadRequest].Type.ShouldBe(typeof(ValidationProblemDetails));
+        responseTypes[StatusCodes.Status401Unauthorized].Type.ShouldBe(typeof(ProblemDetails));
+        responseTypes[StatusCodes.Status403Forbidden].Type.ShouldBe(typeof(ProblemDetails));
+        responseTypes[StatusCodes.Status404NotFound].Type.ShouldBe(typeof(ProblemDetails));
+        responseTypes[StatusCodes.Status409Conflict].Type.ShouldBe(typeof(ProblemDetails));
         responseTypes[StatusCodes.Status500InternalServerError].Type.ShouldBe(typeof(ProblemDetails));
     }
 

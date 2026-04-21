@@ -91,6 +91,12 @@ namespace FCG.Api.Middlewares
                     ApiMessages.Conflict.Title,
                     exception.Message),
 
+                GameNotFoundException => CreateProblemDetails(
+                    context,
+                    StatusCodes.Status404NotFound,
+                    ApiMessages.NotFound.Title,
+                    exception.Message),
+
                 InvalidCredentialsException => CreateProblemDetails(
                     context,
                     StatusCodes.Status401Unauthorized,
