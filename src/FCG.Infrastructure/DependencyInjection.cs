@@ -21,10 +21,26 @@ namespace FCG.Infrastructure
             services.AddDbContext<FcgDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
+            services.AddSingleton(CreateJwtOptions(configuration));
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+            services.AddScoped<IAccessTokenGenerator, JwtAccessTokenGenerator>();
 
             return services;
+        }
+
+        private static JwtOptions CreateJwtOptions(IConfiguration configuration)
+        {
+            var section = configuration.GetSection(JwtOptions.SectionName);
+
+            if (!int.TryParse(section["ExpirationMinutes"], out var expirationMinutes))
+                throw new InvalidOperationException("Jwt expiration minutes was not configured.");
+
+            return new JwtOptions(
+                section["Issuer"] ?? string.Empty,
+                section["Audience"] ?? string.Empty,
+                section["Secret"] ?? string.Empty,
+                expirationMinutes);
         }
     }
 }
