@@ -1,3 +1,4 @@
+using FCG.Api.Common;
 using FCG.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,23 +25,42 @@ namespace FCG.Api.Middlewares
             }
             catch (Exception exception)
             {
+                var problemDetails = CreateProblemDetails(context, exception);
+
+                LogException(context, exception, problemDetails.Status!.Value);
+
+                await WriteProblemDetailsAsync(context, problemDetails);
+            }
+        }
+
+        private void LogException(HttpContext context, Exception exception, int statusCode)
+        {
+            if (statusCode >= StatusCodes.Status500InternalServerError)
+            {
                 _logger.LogError(
                     exception,
                     "Unhandled exception while processing {Method} {Path}.",
                     context.Request.Method,
                     context.Request.Path);
 
-                await HandleExceptionAsync(context, exception);
+                return;
             }
+
+            _logger.LogWarning(
+                exception,
+                "Handled exception while processing {Method} {Path}.",
+                context.Request.Method,
+                context.Request.Path);
         }
 
-        private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private static async Task WriteProblemDetailsAsync(HttpContext context, ProblemDetails problemDetails)
         {
-            var problemDetails = CreateProblemDetails(context, exception);
-
             context.Response.StatusCode = problemDetails.Status!.Value;
 
-            await context.Response.WriteAsJsonAsync(problemDetails);
+            await context.Response.WriteAsJsonAsync(
+                problemDetails,
+                options: null,
+                contentType: "application/problem+json");
         }
 
         private static ProblemDetails CreateProblemDetails(HttpContext context, Exception exception)
@@ -50,26 +70,26 @@ namespace FCG.Api.Middlewares
                 BadHttpRequestException => CreateProblemDetails(
                     context,
                     StatusCodes.Status400BadRequest,
-                    "Erro de validação.",
-                    "O corpo da requisição é obrigatório."),
+                    ApiMessages.Validation.Title,
+                    ApiMessages.Validation.RequestBodyRequired),
 
                 ArgumentException => CreateProblemDetails(
                     context,
                     StatusCodes.Status400BadRequest,
-                    "Erro de validação.",
+                    ApiMessages.Validation.Title,
                     exception.Message),
 
                 EmailAlreadyRegisteredException => CreateProblemDetails(
                     context,
                     StatusCodes.Status409Conflict,
-                    "Conflito.",
+                    ApiMessages.Conflict.Title,
                     exception.Message),
 
                 _ => CreateProblemDetails(
                     context,
                     StatusCodes.Status500InternalServerError,
-                    "Erro interno.",
-                    "Ocorreu um erro inesperado.")
+                    ApiMessages.InternalServerError.Title,
+                    ApiMessages.InternalServerError.Detail)
             };
         }
 

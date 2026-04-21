@@ -19,6 +19,7 @@ namespace FCG.Api.Controllers
         [ProducesResponseType(typeof(RegisterUserResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<RegisterUserResponse>> RegisterAsync(
             RegisterUserRequest request,
             CancellationToken cancellationToken)

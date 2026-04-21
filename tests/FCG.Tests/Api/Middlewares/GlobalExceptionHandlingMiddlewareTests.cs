@@ -1,4 +1,5 @@
 using System.Text.Json;
+using FCG.Api.Common;
 using FCG.Api.Middlewares;
 using FCG.Application.Common;
 using FCG.Application.Common.Exceptions;
@@ -28,8 +29,9 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
         var problemDetails = await ReadProblemDetailsAsync(httpContext);
 
         httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
+        httpContext.Response.ContentType.ShouldStartWith("application/problem+json");
         problemDetails.Status.ShouldBe(StatusCodes.Status400BadRequest);
-        problemDetails.Title.ShouldBe("Erro de validação.");
+        problemDetails.Title.ShouldBe(ApiMessages.Validation.Title);
         problemDetails.Detail.ShouldBe(DomainMessages.Email.InvalidFormat);
     }
 
@@ -50,8 +52,8 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
 
         httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
         problemDetails.Status.ShouldBe(StatusCodes.Status400BadRequest);
-        problemDetails.Title.ShouldBe("Erro de validação.");
-        problemDetails.Detail.ShouldBe("O corpo da requisição é obrigatório.");
+        problemDetails.Title.ShouldBe(ApiMessages.Validation.Title);
+        problemDetails.Detail.ShouldBe(ApiMessages.Validation.RequestBodyRequired);
     }
 
     [Trait("Category", "Unit")]
@@ -71,7 +73,7 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
 
         httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status409Conflict);
         problemDetails.Status.ShouldBe(StatusCodes.Status409Conflict);
-        problemDetails.Title.ShouldBe("Conflito.");
+        problemDetails.Title.ShouldBe(ApiMessages.Conflict.Title);
         problemDetails.Detail.ShouldBe(ApplicationMessages.User.EmailAlreadyRegistered);
     }
 

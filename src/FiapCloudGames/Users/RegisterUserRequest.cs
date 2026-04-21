@@ -1,14 +1,15 @@
 using System.ComponentModel.DataAnnotations;
+using FCG.Api.Common;
 
 namespace FCG.Api.Users
 {
     public sealed record RegisterUserRequest(
-        [Required(ErrorMessage = "Nome é obrigatório.")]
+        [Required(ErrorMessage = ApiMessages.User.NameRequired)]
         string Name,
-        [Required(ErrorMessage = "E-mail é obrigatório.")]
+        [Required(ErrorMessage = ApiMessages.User.EmailRequired)]
         string Email,
-        [Required(ErrorMessage = "Senha é obrigatória.")]
+        [Required(ErrorMessage = ApiMessages.User.PasswordRequired)]
         string Password,
-        [Required(ErrorMessage = "Confirmação de senha é obrigatória.")]
+        [Required(ErrorMessage = ApiMessages.User.ConfirmPasswordRequired)]
         string ConfirmPassword);
 }

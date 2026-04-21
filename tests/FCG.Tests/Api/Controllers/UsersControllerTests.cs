@@ -1,4 +1,4 @@
- using FCG.Api.Controllers;
+using FCG.Api.Controllers;
 using FCG.Api.Users;
 using FCG.Application.Abstractions.Persistence;
 using FCG.Application.Abstractions.Security;

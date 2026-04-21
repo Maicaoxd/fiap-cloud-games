@@ -15,7 +15,8 @@ namespace FCG.Infrastructure
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            var connectionString = configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("DefaultConnection connection string was not configured.");
 
             services.AddDbContext<FcgDbContext>(options =>
                 options.UseSqlServer(connectionString));

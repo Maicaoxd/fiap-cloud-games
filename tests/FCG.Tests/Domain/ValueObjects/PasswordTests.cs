@@ -105,4 +105,32 @@ public sealed class PasswordTests
         var excecao = Should.Throw<ArgumentException>(acao);
         excecao.Message.ShouldBe(DomainMessages.Password.WhiteSpaceNotAllowed);
     }
+
+    [Fact]
+    public void Deve_Considerar_Senhas_Iguais_Quando_Valores_Forem_Iguais()
+    {
+        // Arrange
+        var primeiraSenha = Password.Create("Senha@123");
+        var segundaSenha = Password.Create("Senha@123");
+
+        // Act
+        var saoIguais = primeiraSenha.Equals(segundaSenha);
+
+        // Assert
+        saoIguais.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Deve_Considerar_Senhas_Diferentes_Quando_Valores_Forem_Diferentes()
+    {
+        // Arrange
+        var primeiraSenha = Password.Create("Senha@123");
+        var segundaSenha = Password.Create("Senha@456");
+
+        // Act
+        var saoIguais = primeiraSenha.Equals(segundaSenha);
+
+        // Assert
+        saoIguais.ShouldBeFalse();
+    }
 }

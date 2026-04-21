@@ -2,7 +2,7 @@ using FCG.Domain.Shared;
 
 namespace FCG.Domain.Users.ValueObjects
 {
-    public sealed class Password
+    public sealed class Password : ValueObject
     {
         private const int MinimumLength = 8;
 
@@ -23,6 +23,11 @@ namespace FCG.Domain.Users.ValueObjects
             EnsureHasSpecialCharacter(value);
 
             return new Password(value);
+        }
+
+        protected override IEnumerable<object?> GetEqualityComponents()
+        {
+            yield return Value;
         }
 
         private static void EnsureIsRequired(string value)
