@@ -69,6 +69,16 @@ namespace FCG.Domain.Users
             MarkAsUpdated(updatedBy);
         }
 
+        public void UpdateProfile(string name, Email email, Guid updatedBy)
+        {
+            EnsureNameIsRequired(name);
+            EnsureEmailIsRequired(email);
+
+            Name = name;
+            Email = email;
+            MarkAsUpdated(updatedBy);
+        }
+
         private static void EnsureNameIsRequired(string name)
         {
             if (string.IsNullOrWhiteSpace(name))

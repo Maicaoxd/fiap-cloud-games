@@ -7,6 +7,7 @@ using FCG.Application.Abstractions.Persistence;
 using FCG.Application.Abstractions.Security;
 using FCG.Application.Users.Deactivate;
 using FCG.Application.Users.Register;
+using FCG.Application.Users.UpdateCurrent;
 using FCG.Domain.Users;
 using FCG.Domain.Users.ValueObjects;
 using FCG.Infrastructure.Security;
@@ -28,6 +29,7 @@ public sealed class UsersControllerTests
         var userRepository = Substitute.For<IUserRepository>();
         var passwordHasher = Substitute.For<IPasswordHasher>();
         var deactivateUseCase = new DeactivateUserUseCase(userRepository);
+        var updateCurrentUserUseCase = new UpdateCurrentUserUseCase(userRepository);
 
         userRepository
             .ExistsByEmailAsync(Arg.Any<Email>(), Arg.Any<CancellationToken>())
@@ -36,7 +38,7 @@ public sealed class UsersControllerTests
         passwordHasher.Hash(Arg.Any<Password>()).Returns(passwordHash);
 
         var useCase = new RegisterUserUseCase(userRepository, passwordHasher);
-        var controller = new UsersController(deactivateUseCase, useCase);
+        var controller = new UsersController(deactivateUseCase, useCase, updateCurrentUserUseCase);
         var request = new RegisterUserRequest(
             "Maicon Guedes",
             "maicon@email.com",
@@ -56,6 +58,45 @@ public sealed class UsersControllerTests
     }
 
     [Fact]
+    public async Task UpdateMeAsync_QuandoUsuarioAutenticadoERequestValido_DeveRetornarNoContent()
+    {
+        // Arrange
+        var user = CreateUser();
+        var userRepository = Substitute.For<IUserRepository>();
+        var passwordHasher = Substitute.For<IPasswordHasher>();
+
+        userRepository
+            .GetByIdAsync(user.Id, Arg.Any<CancellationToken>())
+            .Returns(user);
+        userRepository
+            .GetByEmailAsync(Email.Create("maicon.guedes@email.com"), Arg.Any<CancellationToken>())
+            .Returns((User?)null);
+
+        var deactivateUseCase = new DeactivateUserUseCase(userRepository);
+        var registerUseCase = new RegisterUserUseCase(userRepository, passwordHasher);
+        var updateCurrentUserUseCase = new UpdateCurrentUserUseCase(userRepository);
+        var controller = new UsersController(deactivateUseCase, registerUseCase, updateCurrentUserUseCase)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = CreateHttpContext(user.Id, nameof(UserRole.User))
+            }
+        };
+        var request = new UpdateCurrentUserRequest(
+            "Maicon Guedes",
+            "maicon.guedes@email.com");
+
+        // Act
+        var actionResult = await controller.UpdateMeAsync(request, CancellationToken.None);
+
+        // Assert
+        actionResult.ShouldBeOfType<NoContentResult>();
+        user.Name.ShouldBe("Maicon Guedes");
+        user.Email.ShouldBe(Email.Create("maicon.guedes@email.com"));
+        await userRepository.Received(1).UpdateAsync(user, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task DeactivateAsync_QuandoAdminAutenticadoEUsuarioExistir_DeveRetornarNoContent()
     {
         // Arrange
@@ -70,7 +111,8 @@ public sealed class UsersControllerTests
 
         var deactivateUseCase = new DeactivateUserUseCase(userRepository);
         var registerUseCase = new RegisterUserUseCase(userRepository, passwordHasher);
-        var controller = new UsersController(deactivateUseCase, registerUseCase)
+        var updateCurrentUserUseCase = new UpdateCurrentUserUseCase(userRepository);
+        var controller = new UsersController(deactivateUseCase, registerUseCase, updateCurrentUserUseCase)
         {
             ControllerContext = new ControllerContext
             {
@@ -106,6 +148,23 @@ public sealed class UsersControllerTests
     }
 
     [Fact]
+    public void UpdateMeAsync_DeveExigirUsuarioAutenticado()
+    {
+        // Arrange
+        var method = typeof(UsersController)
+            .GetMethod(nameof(UsersController.UpdateMeAsync));
+
+        // Act
+        var authorizeAttribute = method!
+            .GetCustomAttributes(typeof(AuthorizeAttribute), inherit: false)
+            .Cast<AuthorizeAttribute>()
+            .Single();
+
+        // Assert
+        authorizeAttribute.Roles.ShouldBeNull();
+    }
+
+    [Fact]
     public void DeactivateAsync_DeveDocumentarRespostasEsperadasNoSwagger()
     {
         // Arrange
@@ -123,6 +182,28 @@ public sealed class UsersControllerTests
         responseTypes[StatusCodes.Status401Unauthorized].Type.ShouldBe(typeof(ProblemDetails));
         responseTypes[StatusCodes.Status403Forbidden].Type.ShouldBe(typeof(ProblemDetails));
         responseTypes[StatusCodes.Status404NotFound].Type.ShouldBe(typeof(ProblemDetails));
+        responseTypes[StatusCodes.Status500InternalServerError].Type.ShouldBe(typeof(ProblemDetails));
+    }
+
+    [Fact]
+    public void UpdateMeAsync_DeveDocumentarRespostasEsperadasNoSwagger()
+    {
+        // Arrange
+        var method = typeof(UsersController)
+            .GetMethod(nameof(UsersController.UpdateMeAsync));
+
+        // Act
+        var responseTypes = method!
+            .GetCustomAttributes(typeof(ProducesResponseTypeAttribute), inherit: false)
+            .Cast<ProducesResponseTypeAttribute>()
+            .ToDictionary(attribute => attribute.StatusCode);
+
+        // Assert
+        responseTypes[StatusCodes.Status204NoContent].Type.ShouldBe(typeof(void));
+        responseTypes[StatusCodes.Status400BadRequest].Type.ShouldBe(typeof(ValidationProblemDetails));
+        responseTypes[StatusCodes.Status401Unauthorized].Type.ShouldBe(typeof(ProblemDetails));
+        responseTypes[StatusCodes.Status403Forbidden].Type.ShouldBe(typeof(ProblemDetails));
+        responseTypes[StatusCodes.Status409Conflict].Type.ShouldBe(typeof(ProblemDetails));
         responseTypes[StatusCodes.Status500InternalServerError].Type.ShouldBe(typeof(ProblemDetails));
     }
 

@@ -340,4 +340,24 @@ public sealed class UserTests
         // Assert
         excecao.Message.ShouldBe(DomainMessages.Entity.ResponsibleForChangeRequired);
     }
+
+    [Fact]
+    public void Deve_Atualizar_Perfil_Quando_Nome_E_Email_Forem_Validos()
+    {
+        // Arrange
+        var atualizadoPor = Guid.NewGuid();
+        var email = Email.Create("maicon@email.com");
+        var novoEmail = Email.Create("maicon.guedes@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var usuario = User.Create("Maicon Alves", email, passwordHash);
+
+        // Act
+        usuario.UpdateProfile("Maicon Guedes", novoEmail, atualizadoPor);
+
+        // Assert
+        usuario.Name.ShouldBe("Maicon Guedes");
+        usuario.Email.ShouldBe(novoEmail);
+        usuario.UpdatedAt.ShouldNotBeNull();
+        usuario.UpdatedBy.ShouldBe(atualizadoPor);
+    }
 }
