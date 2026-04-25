@@ -48,6 +48,24 @@ public sealed class GameTests
         jogo.Price.ShouldBe(0);
     }
 
+    [Fact]
+    public void Deve_Normalizar_Titulo_Para_Unicidade_Mantendo_Valor_Limpo_Para_Exibicao()
+    {
+        // Arrange
+        var criadoPor = Guid.NewGuid();
+
+        // Act
+        var jogo = Game.Create(
+            "  Stardew Valley  ",
+            "  Simulador de fazenda e vida no campo.  ",
+            24.90m,
+            criadoPor);
+
+        // Assert
+        jogo.Title.ShouldBe("Stardew Valley");
+        jogo.Description.ShouldBe("Simulador de fazenda e vida no campo.");
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]

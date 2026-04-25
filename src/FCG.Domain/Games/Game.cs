@@ -21,8 +21,8 @@ namespace FCG.Domain.Games
             Guid createdBy)
             : base(createdBy)
         {
-            Title = title;
-            Description = description;
+            Title = SanitizeTitle(title);
+            Description = SanitizeDescription(description);
             Price = price;
         }
 
@@ -49,8 +49,8 @@ namespace FCG.Domain.Games
             EnsureDescriptionIsRequired(description);
             EnsurePriceIsNotNegative(price);
 
-            Title = title;
-            Description = description;
+            Title = SanitizeTitle(title);
+            Description = SanitizeDescription(description);
             Price = price;
             MarkAsUpdated(updatedBy);
         }
@@ -75,6 +75,16 @@ namespace FCG.Domain.Games
         {
             if (string.IsNullOrWhiteSpace(description))
                 throw new ArgumentException(DomainMessages.Game.DescriptionRequired);
+        }
+
+        private static string SanitizeTitle(string title)
+        {
+            return title.Trim();
+        }
+
+        private static string SanitizeDescription(string description)
+        {
+            return description.Trim();
         }
 
         private static void EnsurePriceIsNotNegative(decimal price)

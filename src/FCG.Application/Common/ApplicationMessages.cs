@@ -18,6 +18,12 @@ namespace FCG.Application.Common
         {
             public const string TitleAlreadyRegistered = "Jogo já cadastrado com este título.";
             public const string NotFound = "Jogo não encontrado.";
+            public const string InactiveCannotBeAcquired = "Jogo inativo não pode ser adquirido.";
+        }
+
+        public static class Library
+        {
+            public const string GameAlreadyOwned = "Jogo já está na biblioteca do usuário.";
         }
     }
 }

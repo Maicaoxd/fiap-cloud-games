@@ -91,6 +91,18 @@ namespace FCG.Api.Middlewares
                     ApiMessages.Conflict.Title,
                     exception.Message),
 
+                GameAlreadyOwnedException => CreateProblemDetails(
+                    context,
+                    StatusCodes.Status409Conflict,
+                    ApiMessages.Conflict.Title,
+                    exception.Message),
+
+                GameUnavailableException => CreateProblemDetails(
+                    context,
+                    StatusCodes.Status409Conflict,
+                    ApiMessages.Conflict.Title,
+                    exception.Message),
+
                 GameNotFoundException => CreateProblemDetails(
                     context,
                     StatusCodes.Status404NotFound,

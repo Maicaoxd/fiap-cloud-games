@@ -1,4 +1,5 @@
 using FCG.Domain.Games;
+using FCG.Domain.Libraries;
 using FCG.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,7 @@ namespace FCG.Infrastructure.Persistence
 
         public DbSet<User> Users => Set<User>();
         public DbSet<Game> Games => Set<Game>();
+        public DbSet<Library> Libraries => Set<Library>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -23,6 +23,7 @@ namespace FCG.Infrastructure
 
             services.AddSingleton(JwtOptions.Create(configuration));
             services.AddScoped<IGameRepository, GameRepository>();
+            services.AddScoped<ILibraryRepository, LibraryRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
             services.AddScoped<IAccessTokenGenerator, JwtAccessTokenGenerator>();

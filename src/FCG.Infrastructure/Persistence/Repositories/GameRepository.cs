@@ -20,11 +20,11 @@ namespace FCG.Infrastructure.Persistence.Repositories
             if (string.IsNullOrWhiteSpace(title))
                 return false;
 
-            var normalizedTitle = title.Trim().ToLower();
+            var sanitizedTitle = title.Trim();
 
             return await _dbContext.Games
                 .AnyAsync(
-                    game => game.Title.Trim().ToLower() == normalizedTitle,
+                    game => game.Title == sanitizedTitle,
                     cancellationToken);
         }
 
@@ -36,12 +36,12 @@ namespace FCG.Infrastructure.Persistence.Repositories
             if (string.IsNullOrWhiteSpace(title))
                 return false;
 
-            var normalizedTitle = title.Trim().ToLower();
+            var sanitizedTitle = title.Trim();
 
             return await _dbContext.Games
                 .AnyAsync(
                     game => game.Id != gameId &&
-                            game.Title.Trim().ToLower() == normalizedTitle,
+                            game.Title == sanitizedTitle,
                     cancellationToken);
         }
 

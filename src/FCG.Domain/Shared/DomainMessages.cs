@@ -39,5 +39,11 @@ namespace FCG.Domain.Shared
             public const string DescriptionRequired = "Descrição do jogo é obrigatória.";
             public const string PriceCannotBeNegative = "Preço do jogo não pode ser negativo.";
         }
+
+        public static class Library
+        {
+            public const string UserIdRequired = "Usuário da biblioteca é obrigatório.";
+            public const string GameIdRequired = "Jogo da biblioteca é obrigatório.";
+        }
     }
 }

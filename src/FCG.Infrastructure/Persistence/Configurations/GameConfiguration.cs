@@ -22,6 +22,7 @@ namespace FCG.Infrastructure.Persistence.Configurations
             builder.Property(game => game.Title)
                 .HasColumnName("Title")
                 .HasMaxLength(150)
+                .UseCollation("SQL_Latin1_General_CP1_CI_AS")
                 .IsRequired();
 
             builder.HasIndex(game => game.Title)
