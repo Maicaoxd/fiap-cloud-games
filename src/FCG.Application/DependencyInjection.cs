@@ -1,4 +1,5 @@
 using FCG.Application.Games.Create;
+using FCG.Application.Games.Deactivate;
 using FCG.Application.Games.Get;
 using FCG.Application.Games.List;
 using FCG.Application.Games.Update;
@@ -17,6 +18,7 @@ namespace FCG.Application
             services.AddScoped<AcquireGameUseCase>();
             services.AddScoped<AuthenticateUserUseCase>();
             services.AddScoped<CreateGameUseCase>();
+            services.AddScoped<DeactivateGameUseCase>();
             services.AddScoped<GetGameUseCase>();
             services.AddScoped<ListLibraryGamesUseCase>();
             services.AddScoped<ListGamesUseCase>();

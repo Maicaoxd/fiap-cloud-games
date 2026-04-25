@@ -1,6 +1,7 @@
 using FCG.Api.Common;
 using FCG.Api.Games;
 using FCG.Application.Games.Create;
+using FCG.Application.Games.Deactivate;
 using FCG.Application.Games.Get;
 using FCG.Application.Games.List;
 using FCG.Application.Games.Update;
@@ -15,17 +16,20 @@ namespace FCG.Api.Controllers
     public sealed class GamesController : ControllerBase
     {
         private readonly CreateGameUseCase _createGameUseCase;
+        private readonly DeactivateGameUseCase _deactivateGameUseCase;
         private readonly GetGameUseCase _getGameUseCase;
         private readonly ListGamesUseCase _listGamesUseCase;
         private readonly UpdateGameUseCase _updateGameUseCase;
 
         public GamesController(
             CreateGameUseCase createGameUseCase,
+            DeactivateGameUseCase deactivateGameUseCase,
             GetGameUseCase getGameUseCase,
             ListGamesUseCase listGamesUseCase,
             UpdateGameUseCase updateGameUseCase)
         {
             _createGameUseCase = createGameUseCase;
+            _deactivateGameUseCase = deactivateGameUseCase;
             _getGameUseCase = getGameUseCase;
             _listGamesUseCase = listGamesUseCase;
             _updateGameUseCase = updateGameUseCase;
@@ -121,6 +125,25 @@ namespace FCG.Api.Controllers
                 updatedBy);
 
             await _updateGameUseCase.ExecuteAsync(command, cancellationToken);
+
+            return NoContent();
+        }
+
+        [HttpPatch("{gameId:guid}/deactivate")]
+        [Authorize(Roles = nameof(UserRole.Administrator))]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeactivateAsync(
+            Guid gameId,
+            CancellationToken cancellationToken)
+        {
+            var deactivatedBy = User.GetRequiredUserId();
+            var command = new DeactivateGameCommand(gameId, deactivatedBy);
+
+            await _deactivateGameUseCase.ExecuteAsync(command, cancellationToken);
 
             return NoContent();
         }
