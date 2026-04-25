@@ -4,6 +4,7 @@ using FCG.Api.Controllers;
 using FCG.Api.Games;
 using FCG.Application.Abstractions.Persistence;
 using FCG.Application.Games.Create;
+using FCG.Application.Games.Get;
 using FCG.Application.Games.List;
 using FCG.Application.Games.Update;
 using FCG.Domain.Games;
@@ -41,9 +42,10 @@ public sealed class GamesControllerTests
             });
 
         var useCase = new CreateGameUseCase(gameRepository);
+        var getUseCase = new GetGameUseCase(gameRepository);
         var listUseCase = new ListGamesUseCase(gameRepository);
         var updateUseCase = new UpdateGameUseCase(gameRepository);
-        var controller = new GamesController(useCase, listUseCase, updateUseCase)
+        var controller = new GamesController(useCase, getUseCase, listUseCase, updateUseCase)
         {
             ControllerContext = new ControllerContext
             {
@@ -94,9 +96,10 @@ public sealed class GamesControllerTests
             .Returns(new[] { firstGame, secondGame });
 
         var createUseCase = new CreateGameUseCase(gameRepository);
+        var getUseCase = new GetGameUseCase(gameRepository);
         var listUseCase = new ListGamesUseCase(gameRepository);
         var updateUseCase = new UpdateGameUseCase(gameRepository);
-        var controller = new GamesController(createUseCase, listUseCase, updateUseCase)
+        var controller = new GamesController(createUseCase, getUseCase, listUseCase, updateUseCase)
         {
             ControllerContext = new ControllerContext
             {
@@ -115,6 +118,47 @@ public sealed class GamesControllerTests
         response.ShouldContain(game => game.GameId == firstGame.Id);
         response.ShouldContain(game => game.GameId == secondGame.Id);
         await gameRepository.Received(1).ListActiveAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_QuandoUsuarioAutenticadoEJogoExistir_DeveRetornarOkComJogo()
+    {
+        // Arrange
+        var game = Game.Create(
+            "Hades",
+            "Roguelike de ação.",
+            49.90m,
+            Guid.NewGuid());
+        var gameRepository = Substitute.For<IGameRepository>();
+
+        gameRepository
+            .GetByIdAsync(game.Id, Arg.Any<CancellationToken>())
+            .Returns(game);
+
+        var createUseCase = new CreateGameUseCase(gameRepository);
+        var getUseCase = new GetGameUseCase(gameRepository);
+        var listUseCase = new ListGamesUseCase(gameRepository);
+        var updateUseCase = new UpdateGameUseCase(gameRepository);
+        var controller = new GamesController(createUseCase, getUseCase, listUseCase, updateUseCase)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = CreateHttpContext(Guid.NewGuid(), nameof(UserRole.User))
+            }
+        };
+
+        // Act
+        var actionResult = await controller.GetByIdAsync(game.Id, CancellationToken.None);
+
+        // Assert
+        var okResult = actionResult.Result.ShouldBeOfType<OkObjectResult>();
+        var response = okResult.Value.ShouldBeOfType<GetGameResponse>();
+
+        response.GameId.ShouldBe(game.Id);
+        response.Title.ShouldBe("Hades");
+        response.Description.ShouldBe("Roguelike de ação.");
+        response.Price.ShouldBe(49.90m);
+        await gameRepository.Received(1).GetByIdAsync(game.Id, Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -137,9 +181,10 @@ public sealed class GamesControllerTests
             .Returns(false);
 
         var createUseCase = new CreateGameUseCase(gameRepository);
+        var getUseCase = new GetGameUseCase(gameRepository);
         var listUseCase = new ListGamesUseCase(gameRepository);
         var updateUseCase = new UpdateGameUseCase(gameRepository);
-        var controller = new GamesController(createUseCase, listUseCase, updateUseCase)
+        var controller = new GamesController(createUseCase, getUseCase, listUseCase, updateUseCase)
         {
             ControllerContext = new ControllerContext
             {
@@ -169,6 +214,23 @@ public sealed class GamesControllerTests
         // Arrange
         var method = typeof(GamesController)
             .GetMethod(nameof(GamesController.ListAsync));
+
+        // Act
+        var authorizeAttribute = method!
+            .GetCustomAttributes(typeof(AuthorizeAttribute), inherit: false)
+            .Cast<AuthorizeAttribute>()
+            .Single();
+
+        // Assert
+        authorizeAttribute.Roles.ShouldBeNull();
+    }
+
+    [Fact]
+    public void GetByIdAsync_DeveExigirUsuarioAutenticado()
+    {
+        // Arrange
+        var method = typeof(GamesController)
+            .GetMethod(nameof(GamesController.GetByIdAsync));
 
         // Act
         var authorizeAttribute = method!
@@ -252,6 +314,26 @@ public sealed class GamesControllerTests
         // Assert
         responseTypes[StatusCodes.Status200OK].Type.ShouldBe(typeof(IReadOnlyCollection<ListGameResponse>));
         responseTypes[StatusCodes.Status401Unauthorized].Type.ShouldBe(typeof(ProblemDetails));
+        responseTypes[StatusCodes.Status500InternalServerError].Type.ShouldBe(typeof(ProblemDetails));
+    }
+
+    [Fact]
+    public void GetByIdAsync_DeveDocumentarRespostasEsperadasNoSwagger()
+    {
+        // Arrange
+        var method = typeof(GamesController)
+            .GetMethod(nameof(GamesController.GetByIdAsync));
+
+        // Act
+        var responseTypes = method!
+            .GetCustomAttributes(typeof(ProducesResponseTypeAttribute), inherit: false)
+            .Cast<ProducesResponseTypeAttribute>()
+            .ToDictionary(attribute => attribute.StatusCode);
+
+        // Assert
+        responseTypes[StatusCodes.Status200OK].Type.ShouldBe(typeof(GetGameResponse));
+        responseTypes[StatusCodes.Status401Unauthorized].Type.ShouldBe(typeof(ProblemDetails));
+        responseTypes[StatusCodes.Status404NotFound].Type.ShouldBe(typeof(ProblemDetails));
         responseTypes[StatusCodes.Status500InternalServerError].Type.ShouldBe(typeof(ProblemDetails));
     }
 

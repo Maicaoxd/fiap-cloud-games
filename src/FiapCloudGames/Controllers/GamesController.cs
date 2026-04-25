@@ -1,6 +1,7 @@
 using FCG.Api.Common;
 using FCG.Api.Games;
 using FCG.Application.Games.Create;
+using FCG.Application.Games.Get;
 using FCG.Application.Games.List;
 using FCG.Application.Games.Update;
 using FCG.Domain.Users;
@@ -14,15 +15,18 @@ namespace FCG.Api.Controllers
     public sealed class GamesController : ControllerBase
     {
         private readonly CreateGameUseCase _createGameUseCase;
+        private readonly GetGameUseCase _getGameUseCase;
         private readonly ListGamesUseCase _listGamesUseCase;
         private readonly UpdateGameUseCase _updateGameUseCase;
 
         public GamesController(
             CreateGameUseCase createGameUseCase,
+            GetGameUseCase getGameUseCase,
             ListGamesUseCase listGamesUseCase,
             UpdateGameUseCase updateGameUseCase)
         {
             _createGameUseCase = createGameUseCase;
+            _getGameUseCase = getGameUseCase;
             _listGamesUseCase = listGamesUseCase;
             _updateGameUseCase = updateGameUseCase;
         }
@@ -43,6 +47,26 @@ namespace FCG.Api.Controllers
                     game.Description,
                     game.Price))
                 .ToList();
+
+            return Ok(response);
+        }
+
+        [HttpGet("{gameId:guid}")]
+        [Authorize]
+        [ProducesResponseType(typeof(GetGameResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<GetGameResponse>> GetByIdAsync(
+            Guid gameId,
+            CancellationToken cancellationToken)
+        {
+            var result = await _getGameUseCase.ExecuteAsync(gameId, cancellationToken);
+            var response = new GetGameResponse(
+                result.GameId,
+                result.Title,
+                result.Description,
+                result.Price);
 
             return Ok(response);
         }
