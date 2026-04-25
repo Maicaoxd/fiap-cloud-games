@@ -2,6 +2,7 @@ using FCG.Api.Common;
 using FCG.Api.Users;
 using FCG.Application.Users.Deactivate;
 using FCG.Application.Users.Register;
+using FCG.Application.Users.Update;
 using FCG.Application.Users.UpdateCurrent;
 using FCG.Domain.Users;
 using Microsoft.AspNetCore.Authorization;
@@ -15,15 +16,18 @@ namespace FCG.Api.Controllers
     {
         private readonly DeactivateUserUseCase _deactivateUserUseCase;
         private readonly RegisterUserUseCase _registerUserUseCase;
+        private readonly UpdateUserUseCase _updateUserUseCase;
         private readonly UpdateCurrentUserUseCase _updateCurrentUserUseCase;
 
         public UsersController(
             DeactivateUserUseCase deactivateUserUseCase,
             RegisterUserUseCase registerUserUseCase,
+            UpdateUserUseCase updateUserUseCase,
             UpdateCurrentUserUseCase updateCurrentUserUseCase)
         {
             _deactivateUserUseCase = deactivateUserUseCase;
             _registerUserUseCase = registerUserUseCase;
+            _updateUserUseCase = updateUserUseCase;
             _updateCurrentUserUseCase = updateCurrentUserUseCase;
         }
 
@@ -68,6 +72,32 @@ namespace FCG.Api.Controllers
                 request.Email);
 
             await _updateCurrentUserUseCase.ExecuteAsync(command, cancellationToken);
+
+            return NoContent();
+        }
+
+        [HttpPut("{userId:guid}")]
+        [Authorize(Roles = nameof(UserRole.Administrator))]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateAsync(
+            Guid userId,
+            UpdateUserRequest request,
+            CancellationToken cancellationToken)
+        {
+            var updatedBy = User.GetRequiredUserId();
+            var command = new UpdateUserCommand(
+                userId,
+                request.Name,
+                request.Email,
+                updatedBy);
+
+            await _updateUserUseCase.ExecuteAsync(command, cancellationToken);
 
             return NoContent();
         }
