@@ -38,15 +38,20 @@ namespace FCG.Infrastructure.Persistence.Repositories
                     _dbContext.Games.AsNoTracking(),
                     library => library.GameId,
                     game => game.Id,
-                    (library, game) => new LibraryGameReadModel(
-                        library.Id,
-                        game.Id,
-                        game.Title,
-                        game.Description,
-                        game.Price,
-                        game.IsActive,
-                        library.CreatedAt))
-                .OrderByDescending(libraryGame => libraryGame.AcquiredAt)
+                    (library, game) => new
+                    {
+                        Library = library,
+                        Game = game
+                    })
+                .OrderByDescending(result => result.Library.CreatedAt)
+                .Select(result => new LibraryGameReadModel(
+                    result.Library.Id,
+                    result.Game.Id,
+                    result.Game.Title,
+                    result.Game.Description,
+                    result.Game.Price,
+                    result.Game.IsActive,
+                    result.Library.CreatedAt))
                 .ToListAsync(cancellationToken);
         }
 
