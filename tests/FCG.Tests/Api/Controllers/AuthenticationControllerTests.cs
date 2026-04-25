@@ -1,4 +1,5 @@
-using FCG.Api.Authentication;
+using FCG.Api.Contracts.Authentication.ForgotPassword;
+using FCG.Api.Contracts.Authentication.Login;
 using FCG.Api.Controllers;
 using FCG.Application.Abstractions.Persistence;
 using FCG.Application.Abstractions.Security;

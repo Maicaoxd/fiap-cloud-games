@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using FCG.Api.Common;
 
-namespace FCG.Api.Authentication
+namespace FCG.Api.Contracts.Authentication.ForgotPassword
 {
     public sealed record ForgotPasswordRequest(
         [Required(ErrorMessage = ApiMessages.User.EmailRequired)]

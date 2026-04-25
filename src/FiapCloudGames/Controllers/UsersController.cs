@@ -1,5 +1,8 @@
 using FCG.Api.Common;
-using FCG.Api.Users;
+using FCG.Api.Contracts.Users.ChangePassword;
+using FCG.Api.Contracts.Users.Register;
+using FCG.Api.Contracts.Users.Update;
+using FCG.Api.Contracts.Users.UpdateCurrent;
 using FCG.Application.Users.Deactivate;
 using FCG.Application.Users.Register;
 using FCG.Application.Users.ChangePassword;

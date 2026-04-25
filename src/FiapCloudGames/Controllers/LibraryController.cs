@@ -1,5 +1,6 @@
 using FCG.Api.Common;
-using FCG.Api.Libraries;
+using FCG.Api.Contracts.Libraries.Acquire;
+using FCG.Api.Contracts.Libraries.List;
 using FCG.Application.Libraries.Acquire;
 using FCG.Application.Libraries.List;
 using Microsoft.AspNetCore.Authorization;

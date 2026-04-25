@@ -1,4 +1,5 @@
-using FCG.Api.Authentication;
+using FCG.Api.Contracts.Authentication.ForgotPassword;
+using FCG.Api.Contracts.Authentication.Login;
 using FCG.Application.Users.Authenticate;
 using FCG.Application.Users.ForgotPassword;
 using Microsoft.AspNetCore.Authorization;

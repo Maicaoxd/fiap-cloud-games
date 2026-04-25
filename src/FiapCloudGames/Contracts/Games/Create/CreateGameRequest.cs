@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using FCG.Api.Common;
 
-namespace FCG.Api.Games
+namespace FCG.Api.Contracts.Games.Create
 {
-    public sealed record UpdateGameRequest(
+    public sealed record CreateGameRequest(
         [Required(ErrorMessage = ApiMessages.Game.TitleRequired)]
         string Title,
         [Required(ErrorMessage = ApiMessages.Game.DescriptionRequired)]

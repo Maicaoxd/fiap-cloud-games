@@ -1,7 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using FCG.Api.Controllers;
-using FCG.Api.Games;
+using FCG.Api.Contracts.Games.Create;
+using FCG.Api.Contracts.Games.Get;
+using FCG.Api.Contracts.Games.List;
+using FCG.Api.Contracts.Games.Update;
 using FCG.Application.Abstractions.Persistence;
 using FCG.Application.Games.Create;
 using FCG.Application.Games.Deactivate;

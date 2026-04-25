@@ -1,5 +1,8 @@
 using FCG.Api.Common;
-using FCG.Api.Games;
+using FCG.Api.Contracts.Games.Create;
+using FCG.Api.Contracts.Games.Get;
+using FCG.Api.Contracts.Games.List;
+using FCG.Api.Contracts.Games.Update;
 using FCG.Application.Games.Create;
 using FCG.Application.Games.Deactivate;
 using FCG.Application.Games.Get;

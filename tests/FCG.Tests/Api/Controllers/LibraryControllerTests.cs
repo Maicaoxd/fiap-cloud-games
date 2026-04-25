@@ -1,7 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using FCG.Api.Controllers;
-using FCG.Api.Libraries;
+using FCG.Api.Contracts.Libraries.List;
 using FCG.Application.Abstractions.Persistence;
 using FCG.Application.Libraries.Acquire;
 using FCG.Application.Libraries.List;

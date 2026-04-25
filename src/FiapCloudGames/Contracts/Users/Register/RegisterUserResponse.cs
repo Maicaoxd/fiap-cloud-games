@@ -1,4 +1,4 @@
-namespace FCG.Api.Users
+namespace FCG.Api.Contracts.Users.Register
 {
     public sealed record RegisterUserResponse(Guid UserId);
 }

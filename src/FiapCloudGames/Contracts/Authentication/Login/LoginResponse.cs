@@ -1,4 +1,4 @@
-namespace FCG.Api.Authentication
+namespace FCG.Api.Contracts.Authentication.Login
 {
     public sealed record LoginResponse(string AccessToken);
 }

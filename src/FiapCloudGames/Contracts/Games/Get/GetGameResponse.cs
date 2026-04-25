@@ -1,4 +1,4 @@
-namespace FCG.Api.Games
+namespace FCG.Api.Contracts.Games.Get
 {
     public sealed record GetGameResponse(
         Guid GameId,

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using FCG.Api.Common;
 
-namespace FCG.Api.Users
+namespace FCG.Api.Contracts.Users.Register
 {
     public sealed record RegisterUserRequest(
         [Required(ErrorMessage = ApiMessages.User.NameRequired)]

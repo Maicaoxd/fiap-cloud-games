@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using FCG.Api.Common;
 
-namespace FCG.Api.Users
+namespace FCG.Api.Contracts.Users.ChangePassword
 {
     public sealed record ChangePasswordRequest(
         [Required(ErrorMessage = ApiMessages.User.CurrentPasswordRequired)]
