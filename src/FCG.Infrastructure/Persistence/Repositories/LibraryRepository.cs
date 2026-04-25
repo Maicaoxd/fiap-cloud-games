@@ -27,6 +27,29 @@ namespace FCG.Infrastructure.Persistence.Repositories
                     cancellationToken);
         }
 
+        public async Task<IReadOnlyCollection<LibraryGameReadModel>> ListGamesByUserIdAsync(
+            Guid userId,
+            CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Libraries
+                .AsNoTracking()
+                .Where(library => library.UserId == userId)
+                .Join(
+                    _dbContext.Games.AsNoTracking(),
+                    library => library.GameId,
+                    game => game.Id,
+                    (library, game) => new LibraryGameReadModel(
+                        library.Id,
+                        game.Id,
+                        game.Title,
+                        game.Description,
+                        game.Price,
+                        game.IsActive,
+                        library.CreatedAt))
+                .OrderByDescending(libraryGame => libraryGame.AcquiredAt)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task AddAsync(Library library, CancellationToken cancellationToken = default)
         {
             await _dbContext.Libraries.AddAsync(library, cancellationToken);

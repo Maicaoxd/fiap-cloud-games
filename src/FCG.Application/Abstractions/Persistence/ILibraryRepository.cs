@@ -9,6 +9,10 @@ namespace FCG.Application.Abstractions.Persistence
             Guid gameId,
             CancellationToken cancellationToken = default);
 
+        Task<IReadOnlyCollection<LibraryGameReadModel>> ListGamesByUserIdAsync(
+            Guid userId,
+            CancellationToken cancellationToken = default);
+
         Task AddAsync(Library library, CancellationToken cancellationToken = default);
     }
 }
