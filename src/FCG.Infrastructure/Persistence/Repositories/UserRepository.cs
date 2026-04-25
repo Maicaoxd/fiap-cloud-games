@@ -1,4 +1,5 @@
 using FCG.Application.Abstractions.Persistence;
+using FCG.Application.Common.Exceptions;
 using FCG.Domain.Users;
 using FCG.Domain.Users.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,8 @@ namespace FCG.Infrastructure.Persistence.Repositories
 {
     public sealed class UserRepository : IUserRepository
     {
+        private const string UniqueEmailIndexName = "IX_Users_Email";
+
         private readonly FcgDbContext _dbContext;
 
         public UserRepository(FcgDbContext dbContext)
@@ -35,7 +38,18 @@ namespace FCG.Infrastructure.Persistence.Repositories
         public async Task AddAsync(User user, CancellationToken cancellationToken = default)
         {
             await _dbContext.Users.AddAsync(user, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            try
+            {
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateException exception) when (
+                SqlServerUniqueConstraintDetector.IsUniqueConstraintViolation(
+                    exception,
+                    UniqueEmailIndexName))
+            {
+                throw new EmailAlreadyRegisteredException();
+            }
         }
     }
 }

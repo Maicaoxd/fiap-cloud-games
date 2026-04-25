@@ -6,6 +6,6 @@ namespace FCG.Application.Abstractions.Security
     {
         PasswordHash Hash(Password password);
 
-        bool Verify(Password password, PasswordHash passwordHash);
+        bool Verify(string? password, PasswordHash passwordHash);
     }
 }

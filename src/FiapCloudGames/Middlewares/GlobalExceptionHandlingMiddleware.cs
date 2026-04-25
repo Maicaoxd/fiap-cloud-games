@@ -1,5 +1,7 @@
 using FCG.Api.Common;
+using FCG.Application.Common;
 using FCG.Application.Common.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FCG.Api.Middlewares
@@ -121,12 +123,26 @@ namespace FCG.Api.Middlewares
                     ApiMessages.Forbidden.Title,
                     exception.Message),
 
+                DbUpdateException dbUpdateException when IsUniqueConstraintViolation(dbUpdateException) => CreateProblemDetails(
+                    context,
+                    StatusCodes.Status409Conflict,
+                    ApiMessages.Conflict.Title,
+                    ApplicationMessages.Conflict.UniqueConstraintViolation),
+
                 _ => CreateProblemDetails(
                     context,
                     StatusCodes.Status500InternalServerError,
                     ApiMessages.InternalServerError.Title,
                     ApiMessages.InternalServerError.Detail)
             };
+        }
+
+        private static bool IsUniqueConstraintViolation(DbUpdateException exception)
+        {
+            var message = exception.GetBaseException().Message;
+
+            return message.Contains("UNIQUE", StringComparison.OrdinalIgnoreCase) ||
+                   message.Contains("duplicate", StringComparison.OrdinalIgnoreCase);
         }
 
         private static ProblemDetails CreateProblemDetails(

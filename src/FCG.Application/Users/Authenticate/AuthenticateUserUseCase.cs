@@ -27,11 +27,10 @@ namespace FCG.Application.Users.Authenticate
             CancellationToken cancellationToken = default)
         {
             var email = Email.Create(command.Email);
-            var password = Password.Create(command.Password);
             var user = await _userRepository.GetByEmailAsync(email, cancellationToken);
 
             user = ResolveExistingUser(user);
-            EnsureCredentialsAreValid(password, user.PasswordHash);
+            EnsureCredentialsAreValid(command.Password, user.PasswordHash);
             EnsureAccountIsActive(user);
 
             var accessToken = _accessTokenGenerator.Generate(user);
@@ -47,7 +46,7 @@ namespace FCG.Application.Users.Authenticate
             return user;
         }
 
-        private void EnsureCredentialsAreValid(Password password, PasswordHash passwordHash)
+        private void EnsureCredentialsAreValid(string? password, PasswordHash passwordHash)
         {
             if (!_passwordHasher.Verify(password, passwordHash))
                 throw new InvalidCredentialsException();

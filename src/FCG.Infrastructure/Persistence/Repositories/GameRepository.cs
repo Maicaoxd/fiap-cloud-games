@@ -1,4 +1,5 @@
 using FCG.Application.Abstractions.Persistence;
+using FCG.Application.Common.Exceptions;
 using FCG.Domain.Games;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,6 +7,8 @@ namespace FCG.Infrastructure.Persistence.Repositories
 {
     public sealed class GameRepository : IGameRepository
     {
+        private const string UniqueTitleIndexName = "IX_Games_Title";
+
         private readonly FcgDbContext _dbContext;
 
         public GameRepository(FcgDbContext dbContext)
@@ -66,13 +69,35 @@ namespace FCG.Infrastructure.Persistence.Repositories
         public async Task AddAsync(Game game, CancellationToken cancellationToken = default)
         {
             await _dbContext.Games.AddAsync(game, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            try
+            {
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateException exception) when (
+                SqlServerUniqueConstraintDetector.IsUniqueConstraintViolation(
+                    exception,
+                    UniqueTitleIndexName))
+            {
+                throw new GameTitleAlreadyRegisteredException();
+            }
         }
 
         public async Task UpdateAsync(Game game, CancellationToken cancellationToken = default)
         {
             _dbContext.Games.Update(game);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            try
+            {
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateException exception) when (
+                SqlServerUniqueConstraintDetector.IsUniqueConstraintViolation(
+                    exception,
+                    UniqueTitleIndexName))
+            {
+                throw new GameTitleAlreadyRegisteredException();
+            }
         }
     }
 }

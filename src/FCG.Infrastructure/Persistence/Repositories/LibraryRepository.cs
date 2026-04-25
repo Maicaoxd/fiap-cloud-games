@@ -1,7 +1,6 @@
 using FCG.Application.Abstractions.Persistence;
 using FCG.Application.Common.Exceptions;
 using FCG.Domain.Libraries;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace FCG.Infrastructure.Persistence.Repositories
@@ -36,16 +35,13 @@ namespace FCG.Infrastructure.Persistence.Repositories
             {
                 await _dbContext.SaveChangesAsync(cancellationToken);
             }
-            catch (DbUpdateException exception) when (IsUniqueOwnershipViolation(exception))
+            catch (DbUpdateException exception) when (
+                SqlServerUniqueConstraintDetector.IsUniqueConstraintViolation(
+                    exception,
+                    UniqueOwnershipIndexName))
             {
                 throw new GameAlreadyOwnedException();
             }
-        }
-
-        private static bool IsUniqueOwnershipViolation(DbUpdateException exception)
-        {
-            return exception.InnerException is SqlException sqlException &&
-                   sqlException.Message.Contains(UniqueOwnershipIndexName, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

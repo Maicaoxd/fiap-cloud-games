@@ -30,7 +30,7 @@ public sealed class AuthenticationControllerTests
             .Returns(user);
 
         passwordHasher
-            .Verify(Arg.Any<Password>(), passwordHash)
+            .Verify(Arg.Any<string?>(), passwordHash)
             .Returns(true);
 
         accessTokenGenerator
@@ -56,7 +56,7 @@ public sealed class AuthenticationControllerTests
 
         response.AccessToken.ShouldBe("access-token");
         await userRepository.Received(1).GetByEmailAsync(email, Arg.Any<CancellationToken>());
-        passwordHasher.Received(1).Verify(Arg.Any<Password>(), passwordHash);
+        passwordHasher.Received(1).Verify("Senha@123", passwordHash);
         accessTokenGenerator.Received(1).Generate(user);
     }
 

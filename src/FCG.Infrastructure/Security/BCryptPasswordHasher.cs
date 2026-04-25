@@ -12,9 +12,12 @@ namespace FCG.Infrastructure.Security
             return PasswordHash.Create(hash);
         }
 
-        public bool Verify(Password password, PasswordHash passwordHash)
+        public bool Verify(string? password, PasswordHash passwordHash)
         {
-            return BCrypt.Net.BCrypt.Verify(password.Value, passwordHash.Value);
+            if (password is null)
+                return false;
+
+            return BCrypt.Net.BCrypt.Verify(password, passwordHash.Value);
         }
     }
 }

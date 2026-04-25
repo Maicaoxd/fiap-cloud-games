@@ -25,5 +25,10 @@ namespace FCG.Application.Common
         {
             public const string GameAlreadyOwned = "Jogo já está na biblioteca do usuário.";
         }
+
+        public static class Conflict
+        {
+            public const string UniqueConstraintViolation = "Já existe um registro com os mesmos dados.";
+        }
     }
 }

@@ -28,7 +28,7 @@ public sealed class AuthenticateUserUseCaseTests
             .Returns(user);
 
         passwordHasher
-            .Verify(Arg.Any<Password>(), passwordHash)
+            .Verify(Arg.Any<string?>(), passwordHash)
             .Returns(true);
 
         accessTokenGenerator
@@ -50,7 +50,7 @@ public sealed class AuthenticateUserUseCaseTests
         // Assert
         result.AccessToken.ShouldBe("access-token");
         await userRepository.Received(1).GetByEmailAsync(email, Arg.Any<CancellationToken>());
-        passwordHasher.Received(1).Verify(Arg.Any<Password>(), passwordHash);
+        passwordHasher.Received(1).Verify("Senha@123", passwordHash);
         accessTokenGenerator.Received(1).Generate(user);
     }
 
@@ -81,7 +81,7 @@ public sealed class AuthenticateUserUseCaseTests
 
         // Assert
         excecao.Message.ShouldBe(ApplicationMessages.Authentication.InvalidCredentials);
-        passwordHasher.DidNotReceive().Verify(Arg.Any<Password>(), Arg.Any<PasswordHash>());
+        passwordHasher.DidNotReceive().Verify(Arg.Any<string?>(), Arg.Any<PasswordHash>());
         accessTokenGenerator.DidNotReceive().Generate(Arg.Any<User>());
     }
 
@@ -101,7 +101,7 @@ public sealed class AuthenticateUserUseCaseTests
             .Returns(user);
 
         passwordHasher
-            .Verify(Arg.Any<Password>(), passwordHash)
+            .Verify(Arg.Any<string?>(), passwordHash)
             .Returns(false);
 
         var useCase = new AuthenticateUserUseCase(
@@ -118,7 +118,7 @@ public sealed class AuthenticateUserUseCaseTests
 
         // Assert
         excecao.Message.ShouldBe(ApplicationMessages.Authentication.InvalidCredentials);
-        passwordHasher.Received(1).Verify(Arg.Any<Password>(), passwordHash);
+        passwordHasher.Received(1).Verify("Senha@123", passwordHash);
         accessTokenGenerator.DidNotReceive().Generate(Arg.Any<User>());
     }
 
@@ -140,7 +140,7 @@ public sealed class AuthenticateUserUseCaseTests
             .Returns(user);
 
         passwordHasher
-            .Verify(Arg.Any<Password>(), passwordHash)
+            .Verify(Arg.Any<string?>(), passwordHash)
             .Returns(true);
 
         var useCase = new AuthenticateUserUseCase(
@@ -157,7 +157,44 @@ public sealed class AuthenticateUserUseCaseTests
 
         // Assert
         excecao.Message.ShouldBe(ApplicationMessages.Authentication.InactiveUser);
-        passwordHasher.Received(1).Verify(Arg.Any<Password>(), passwordHash);
+        passwordHasher.Received(1).Verify("Senha@123", passwordHash);
+        accessTokenGenerator.DidNotReceive().Generate(Arg.Any<User>());
+    }
+
+    [Fact]
+    public async Task Deve_Tentar_Verificar_Senha_Fraca_No_Login_Sem_Aplicar_Regra_De_Cadastro()
+    {
+        // Arrange
+        var email = Email.Create("maicon@email.com");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+        var user = User.Create("Maicon Guedes", email, passwordHash);
+        var userRepository = Substitute.For<IUserRepository>();
+        var passwordHasher = Substitute.For<IPasswordHasher>();
+        var accessTokenGenerator = Substitute.For<IAccessTokenGenerator>();
+
+        userRepository
+            .GetByEmailAsync(email, Arg.Any<CancellationToken>())
+            .Returns(user);
+
+        passwordHasher
+            .Verify("123", passwordHash)
+            .Returns(false);
+
+        var useCase = new AuthenticateUserUseCase(
+            userRepository,
+            passwordHasher,
+            accessTokenGenerator);
+
+        var command = new AuthenticateUserCommand(
+            "maicon@email.com",
+            "123");
+
+        // Act
+        var excecao = await Should.ThrowAsync<InvalidCredentialsException>(() => useCase.ExecuteAsync(command));
+
+        // Assert
+        excecao.Message.ShouldBe(ApplicationMessages.Authentication.InvalidCredentials);
+        passwordHasher.Received(1).Verify("123", passwordHash);
         accessTokenGenerator.DidNotReceive().Generate(Arg.Any<User>());
     }
 }

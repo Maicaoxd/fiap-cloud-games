@@ -30,7 +30,7 @@ public sealed class BCryptPasswordHasherTests
         var passwordHash = passwordHasher.Hash(password);
 
         // Act
-        var senhaCorreta = passwordHasher.Verify(password, passwordHash);
+        var senhaCorreta = passwordHasher.Verify("Senha@123", passwordHash);
 
         // Assert
         senhaCorreta.ShouldBeTrue();
@@ -46,7 +46,22 @@ public sealed class BCryptPasswordHasherTests
         var passwordHash = passwordHasher.Hash(password);
 
         // Act
-        var senhaCorreta = passwordHasher.Verify(wrongPassword, passwordHash);
+        var senhaCorreta = passwordHasher.Verify(wrongPassword.Value, passwordHash);
+
+        // Assert
+        senhaCorreta.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void Deve_Nao_Verificar_Senha_Quando_Valor_For_Nulo()
+    {
+        // Arrange
+        var password = Password.Create("Senha@123");
+        var passwordHasher = new BCryptPasswordHasher();
+        var passwordHash = passwordHasher.Hash(password);
+
+        // Act
+        var senhaCorreta = passwordHasher.Verify((string?)null, passwordHash);
 
         // Assert
         senhaCorreta.ShouldBeFalse();

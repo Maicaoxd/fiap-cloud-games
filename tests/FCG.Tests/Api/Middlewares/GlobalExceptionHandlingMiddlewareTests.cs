@@ -6,6 +6,7 @@ using FCG.Application.Common.Exceptions;
 using FCG.Domain.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
@@ -153,6 +154,28 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
         problemDetails.Status.ShouldBe(StatusCodes.Status403Forbidden);
         problemDetails.Title.ShouldBe(ApiMessages.Forbidden.Title);
         problemDetails.Detail.ShouldBe(ApplicationMessages.Authentication.InactiveUser);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_QuandoOcorrerDbUpdateExceptionDeUnicidade_DeveRetornarConflict()
+    {
+        // Arrange
+        var httpContext = CreateHttpContext();
+        var middleware = CreateMiddleware(_ =>
+            throw new DbUpdateException(
+                "Falha ao persistir.",
+                new Exception("Violation of UNIQUE KEY constraint 'IX_Users_Email'.")));
+
+        // Act
+        await middleware.InvokeAsync(httpContext);
+
+        // Assert
+        var problemDetails = await ReadProblemDetailsAsync(httpContext);
+
+        httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status409Conflict);
+        problemDetails.Status.ShouldBe(StatusCodes.Status409Conflict);
+        problemDetails.Title.ShouldBe(ApiMessages.Conflict.Title);
+        problemDetails.Detail.ShouldBe(ApplicationMessages.Conflict.UniqueConstraintViolation);
     }
 
     private static DefaultHttpContext CreateHttpContext()
