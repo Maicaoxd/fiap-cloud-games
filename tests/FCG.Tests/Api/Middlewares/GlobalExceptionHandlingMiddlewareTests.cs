@@ -77,6 +77,26 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_QuandoOcorrerCpfAlreadyRegisteredException_DeveRetornarConflict()
+    {
+        // Arrange
+        var httpContext = CreateHttpContext();
+        var middleware = CreateMiddleware(_ =>
+            throw new CpfAlreadyRegisteredException());
+
+        // Act
+        await middleware.InvokeAsync(httpContext);
+
+        // Assert
+        var problemDetails = await ReadProblemDetailsAsync(httpContext);
+
+        httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status409Conflict);
+        problemDetails.Status.ShouldBe(StatusCodes.Status409Conflict);
+        problemDetails.Title.ShouldBe(ApiMessages.Conflict.Title);
+        problemDetails.Detail.ShouldBe(ApplicationMessages.User.CpfAlreadyRegistered);
+    }
+
+    [Fact]
     public async Task InvokeAsync_QuandoOcorrerGameTitleAlreadyRegisteredException_DeveRetornarConflict()
     {
         // Arrange
@@ -134,6 +154,26 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
         problemDetails.Status.ShouldBe(StatusCodes.Status404NotFound);
         problemDetails.Title.ShouldBe(ApiMessages.NotFound.Title);
         problemDetails.Detail.ShouldBe(ApplicationMessages.User.NotFound);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_QuandoOcorrerInvalidPasswordRecoveryDataException_DeveRetornarBadRequest()
+    {
+        // Arrange
+        var httpContext = CreateHttpContext();
+        var middleware = CreateMiddleware(_ =>
+            throw new InvalidPasswordRecoveryDataException());
+
+        // Act
+        await middleware.InvokeAsync(httpContext);
+
+        // Assert
+        var problemDetails = await ReadProblemDetailsAsync(httpContext);
+
+        httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
+        problemDetails.Status.ShouldBe(StatusCodes.Status400BadRequest);
+        problemDetails.Title.ShouldBe(ApiMessages.Validation.Title);
+        problemDetails.Detail.ShouldBe(ApplicationMessages.PasswordRecovery.InvalidRecoveryData);
     }
 
     [Fact]

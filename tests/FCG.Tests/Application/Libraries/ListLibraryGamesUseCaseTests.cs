@@ -112,8 +112,9 @@ public sealed class ListLibraryGamesUseCaseTests
     private static User CreateUser(Guid userId, bool isActive = true)
     {
         var email = Email.Create("maicon@email.com");
+        var cpf = Cpf.Create("529.982.247-25");
         var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
-        var user = User.Create("Maicon Guedes", email, passwordHash, userId);
+        var user = User.Create("Maicon Guedes", email, cpf, new DateOnly(1993, 6, 17), passwordHash, userId);
 
         if (!isActive)
             user.Deactivate(userId);

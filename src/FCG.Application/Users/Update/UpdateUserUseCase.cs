@@ -23,12 +23,17 @@ namespace FCG.Application.Users.Update
                 throw new UserNotFoundException();
 
             var email = Email.Create(command.Email);
+            var cpf = Cpf.Create(command.Cpf);
             var userWithSameEmail = await _userRepository.GetByEmailAsync(email, cancellationToken);
+            var userWithSameCpf = await _userRepository.GetByCpfAsync(cpf, cancellationToken);
 
             if (userWithSameEmail is not null && userWithSameEmail.Id != user.Id)
                 throw new EmailAlreadyRegisteredException();
 
-            user.UpdateProfile(command.Name, email, command.UpdatedBy);
+            if (userWithSameCpf is not null && userWithSameCpf.Id != user.Id)
+                throw new CpfAlreadyRegisteredException();
+
+            user.UpdateProfile(command.Name, email, cpf, command.BirthDate, command.UpdatedBy);
 
             await _userRepository.UpdateAsync(user, cancellationToken);
         }

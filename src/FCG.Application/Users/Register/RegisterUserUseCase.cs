@@ -25,13 +25,17 @@ namespace FCG.Application.Users.Register
             EnsurePasswordsMatch(command.Password, command.ConfirmPassword);
 
             var email = Email.Create(command.Email);
+            var cpf = Cpf.Create(command.Cpf);
             var password = Password.Create(command.Password);
 
             if (await _userRepository.ExistsByEmailAsync(email, cancellationToken))
                 throw new EmailAlreadyRegisteredException();
 
+            if (await _userRepository.ExistsByCpfAsync(cpf, cancellationToken))
+                throw new CpfAlreadyRegisteredException();
+
             var passwordHash = _passwordHasher.Hash(password);
-            var user = User.Create(command.Name, email, passwordHash);
+            var user = User.Create(command.Name, email, cpf, command.BirthDate, passwordHash);
 
             await _userRepository.AddAsync(user, cancellationToken);
 

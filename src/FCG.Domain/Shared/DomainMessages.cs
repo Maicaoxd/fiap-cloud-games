@@ -10,12 +10,20 @@ namespace FCG.Domain.Shared
         public static class User
         {
             public const string NameRequired = "Nome é obrigatório.";
+            public const string BirthDateRequired = "Data de nascimento é obrigatória.";
+            public const string BirthDateCannotBeInFuture = "Data de nascimento não pode ser futura.";
         }
 
         public static class Email
         {
             public const string Required = "E-mail é obrigatório.";
             public const string InvalidFormat = "E-mail deve estar em um formato válido.";
+        }
+
+        public static class Cpf
+        {
+            public const string Required = "CPF é obrigatório.";
+            public const string InvalidFormat = "CPF deve conter 11 dígitos válidos.";
         }
 
         public static class Password

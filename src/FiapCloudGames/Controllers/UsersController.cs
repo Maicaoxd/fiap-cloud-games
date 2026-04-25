@@ -2,6 +2,7 @@ using FCG.Api.Common;
 using FCG.Api.Users;
 using FCG.Application.Users.Deactivate;
 using FCG.Application.Users.Register;
+using FCG.Application.Users.ChangePassword;
 using FCG.Application.Users.Update;
 using FCG.Application.Users.UpdateCurrent;
 using FCG.Domain.Users;
@@ -16,17 +17,20 @@ namespace FCG.Api.Controllers
     {
         private readonly DeactivateUserUseCase _deactivateUserUseCase;
         private readonly RegisterUserUseCase _registerUserUseCase;
+        private readonly ChangePasswordUseCase _changePasswordUseCase;
         private readonly UpdateUserUseCase _updateUserUseCase;
         private readonly UpdateCurrentUserUseCase _updateCurrentUserUseCase;
 
         public UsersController(
             DeactivateUserUseCase deactivateUserUseCase,
             RegisterUserUseCase registerUserUseCase,
+            ChangePasswordUseCase changePasswordUseCase,
             UpdateUserUseCase updateUserUseCase,
             UpdateCurrentUserUseCase updateCurrentUserUseCase)
         {
             _deactivateUserUseCase = deactivateUserUseCase;
             _registerUserUseCase = registerUserUseCase;
+            _changePasswordUseCase = changePasswordUseCase;
             _updateUserUseCase = updateUserUseCase;
             _updateCurrentUserUseCase = updateCurrentUserUseCase;
         }
@@ -44,6 +48,8 @@ namespace FCG.Api.Controllers
             var command = new RegisterUserCommand(
                 request.Name,
                 request.Email,
+                request.Cpf,
+                request.BirthDate!.Value,
                 request.Password,
                 request.ConfirmPassword);
 
@@ -69,9 +75,33 @@ namespace FCG.Api.Controllers
             var command = new UpdateCurrentUserCommand(
                 userId,
                 request.Name,
-                request.Email);
+                request.Email,
+                request.BirthDate!.Value);
 
             await _updateCurrentUserUseCase.ExecuteAsync(command, cancellationToken);
+
+            return NoContent();
+        }
+
+        [HttpPatch("me/password")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ChangePasswordAsync(
+            ChangePasswordRequest request,
+            CancellationToken cancellationToken)
+        {
+            var userId = User.GetRequiredUserId();
+            var command = new ChangePasswordCommand(
+                userId,
+                request.CurrentPassword,
+                request.NewPassword,
+                request.ConfirmNewPassword);
+
+            await _changePasswordUseCase.ExecuteAsync(command, cancellationToken);
 
             return NoContent();
         }
@@ -95,6 +125,8 @@ namespace FCG.Api.Controllers
                 userId,
                 request.Name,
                 request.Email,
+                request.Cpf,
+                request.BirthDate!.Value,
                 updatedBy);
 
             await _updateUserUseCase.ExecuteAsync(command, cancellationToken);

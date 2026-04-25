@@ -19,8 +19,9 @@ public sealed class JwtAccessTokenGeneratorTests
             60);
 
         var email = Email.Create("maicon@email.com");
+        var cpf = Cpf.Create("529.982.247-25");
         var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
-        var user = User.Create("Maicon Guedes", email, passwordHash);
+        var user = User.Create("Maicon Guedes", email, cpf, new DateOnly(1993, 6, 17), passwordHash);
         var accessTokenGenerator = new JwtAccessTokenGenerator(jwtOptions);
 
         // Act

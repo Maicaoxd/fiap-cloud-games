@@ -6,6 +6,7 @@ namespace FCG.Application.Common
         {
             public const string PasswordConfirmationDoesNotMatch = "As senhas não conferem.";
             public const string EmailAlreadyRegistered = "E-mail já cadastrado.";
+            public const string CpfAlreadyRegistered = "CPF já cadastrado.";
             public const string NotFound = "Usuário não encontrado.";
         }
 
@@ -13,6 +14,11 @@ namespace FCG.Application.Common
         {
             public const string InvalidCredentials = "E-mail ou senha inválidos.";
             public const string InactiveUser = "Usuário inativo.";
+        }
+
+        public static class PasswordRecovery
+        {
+            public const string InvalidRecoveryData = "Os dados de recuperação de senha são inválidos.";
         }
 
         public static class Game

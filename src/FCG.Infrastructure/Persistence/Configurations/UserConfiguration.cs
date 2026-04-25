@@ -37,6 +37,22 @@ namespace FCG.Infrastructure.Persistence.Configurations
                 .IsUnique()
                 .HasDatabaseName("IX_Users_Email");
 
+            builder.Property(user => user.Cpf)
+                .HasColumnName("Cpf")
+                .HasMaxLength(11)
+                .HasConversion(
+                    cpf => cpf.Value,
+                    value => Cpf.Create(value))
+                .IsRequired();
+
+            builder.HasIndex(user => user.Cpf)
+                .IsUnique()
+                .HasDatabaseName("IX_Users_Cpf");
+
+            builder.Property(user => user.BirthDate)
+                .HasColumnName("BirthDate")
+                .IsRequired();
+
             builder.Property(user => user.PasswordHash)
                 .HasColumnName("PasswordHash")
                 .HasMaxLength(500)

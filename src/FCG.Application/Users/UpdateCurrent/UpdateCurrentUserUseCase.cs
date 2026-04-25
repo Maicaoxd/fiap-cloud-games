@@ -29,7 +29,7 @@ namespace FCG.Application.Users.UpdateCurrent
             if (userWithSameEmail is not null && userWithSameEmail.Id != user.Id)
                 throw new EmailAlreadyRegisteredException();
 
-            user.UpdateProfile(command.Name, email, command.UserId);
+            user.UpdateProfile(command.Name, email, user.Cpf, command.BirthDate, command.UserId);
 
             await _userRepository.UpdateAsync(user, cancellationToken);
         }

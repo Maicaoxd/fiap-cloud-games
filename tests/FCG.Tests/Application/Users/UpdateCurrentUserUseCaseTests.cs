@@ -15,6 +15,7 @@ public sealed class UpdateCurrentUserUseCaseTests
     public async Task Deve_Atualizar_Usuario_Quando_Dados_Forem_Validos()
     {
         // Arrange
+        var birthDate = new DateOnly(1994, 7, 18);
         var user = CreateUser();
         var userRepository = Substitute.For<IUserRepository>();
 
@@ -29,7 +30,8 @@ public sealed class UpdateCurrentUserUseCaseTests
         var command = new UpdateCurrentUserCommand(
             user.Id,
             "Maicon Guedes",
-            "maicon.guedes@email.com");
+            "maicon.guedes@email.com",
+            birthDate);
 
         // Act
         await useCase.ExecuteAsync(command);
@@ -37,8 +39,11 @@ public sealed class UpdateCurrentUserUseCaseTests
         // Assert
         user.Name.ShouldBe("Maicon Guedes");
         user.Email.ShouldBe(Email.Create("maicon.guedes@email.com"));
+        user.Cpf.ShouldBe(Cpf.Create("529.982.247-25"));
+        user.BirthDate.ShouldBe(birthDate);
         user.UpdatedBy.ShouldBe(user.Id);
         user.UpdatedAt.ShouldNotBeNull();
+        await userRepository.DidNotReceive().GetByCpfAsync(Arg.Any<Cpf>(), Arg.Any<CancellationToken>());
         await userRepository.Received(1).UpdateAsync(user, Arg.Any<CancellationToken>());
     }
 
@@ -46,7 +51,7 @@ public sealed class UpdateCurrentUserUseCaseTests
     public async Task Deve_Permitir_Atualizar_Quando_Email_Pertencer_Ao_Proprio_Usuario()
     {
         // Arrange
-        var user = CreateUser();
+        var user = CreateUserWithRecoveryData();
         var userRepository = Substitute.For<IUserRepository>();
 
         userRepository
@@ -60,7 +65,8 @@ public sealed class UpdateCurrentUserUseCaseTests
         var command = new UpdateCurrentUserCommand(
             user.Id,
             "Maicon Guedes",
-            user.Email.Value);
+            user.Email.Value,
+            user.BirthDate);
 
         // Act
         await useCase.ExecuteAsync(command);
@@ -68,6 +74,7 @@ public sealed class UpdateCurrentUserUseCaseTests
         // Assert
         user.Name.ShouldBe("Maicon Guedes");
         user.Email.ShouldBe(Email.Create("maicon@email.com"));
+        user.Cpf.ShouldBe(Cpf.Create("52998224725"));
         await userRepository.Received(1).UpdateAsync(user, Arg.Any<CancellationToken>());
     }
 
@@ -86,7 +93,8 @@ public sealed class UpdateCurrentUserUseCaseTests
         var command = new UpdateCurrentUserCommand(
             userId,
             "Maicon Guedes",
-            "maicon@email.com");
+            "maicon@email.com",
+            new DateOnly(1993, 6, 17));
 
         // Act
         var exception = await Should.ThrowAsync<InvalidCredentialsException>(() => useCase.ExecuteAsync(command));
@@ -112,7 +120,8 @@ public sealed class UpdateCurrentUserUseCaseTests
         var command = new UpdateCurrentUserCommand(
             user.Id,
             "Maicon Guedes",
-            "maicon@email.com");
+            "maicon@email.com",
+            new DateOnly(1993, 6, 17));
 
         // Act
         var exception = await Should.ThrowAsync<InactiveUserException>(() => useCase.ExecuteAsync(command));
@@ -128,8 +137,10 @@ public sealed class UpdateCurrentUserUseCaseTests
         // Arrange
         var user = CreateUser();
         var anotherUser = User.Create(
-            "Outro Usuário",
+            "Outro Usuario",
             Email.Create("outro@email.com"),
+            Cpf.Create("286.255.878-87"),
+            new DateOnly(1988, 1, 20),
             PasswordHash.Create("$2a$11$outrohashfakeparatestes"));
         var userRepository = Substitute.For<IUserRepository>();
 
@@ -139,12 +150,16 @@ public sealed class UpdateCurrentUserUseCaseTests
         userRepository
             .GetByEmailAsync(Email.Create("outro@email.com"), Arg.Any<CancellationToken>())
             .Returns(anotherUser);
+        userRepository
+            .GetByCpfAsync(Arg.Any<Cpf>(), Arg.Any<CancellationToken>())
+            .Returns((User?)null);
 
         var useCase = new UpdateCurrentUserUseCase(userRepository);
         var command = new UpdateCurrentUserCommand(
             user.Id,
             "Maicon Guedes",
-            "outro@email.com");
+            "outro@email.com",
+            new DateOnly(1993, 6, 17));
 
         // Act
         var exception = await Should.ThrowAsync<EmailAlreadyRegisteredException>(() => useCase.ExecuteAsync(command));
@@ -157,8 +172,18 @@ public sealed class UpdateCurrentUserUseCaseTests
     private static User CreateUser()
     {
         var email = Email.Create("maicon@email.com");
+        var cpf = Cpf.Create("529.982.247-25");
         var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
 
-        return User.Create("Maicon Alves", email, passwordHash);
+        return User.Create("Maicon Alves", email, cpf, new DateOnly(1993, 6, 17), passwordHash);
+    }
+
+    private static User CreateUserWithRecoveryData()
+    {
+        var email = Email.Create("maicon@email.com");
+        var cpf = Cpf.Create("529.982.247-25");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+
+        return User.Create("Maicon Alves", email, cpf, new DateOnly(1993, 6, 17), passwordHash);
     }
 }

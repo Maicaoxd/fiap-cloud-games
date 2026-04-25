@@ -16,9 +16,9 @@ public sealed class AuthenticateUserUseCaseTests
     public async Task Deve_Autenticar_Usuario_Quando_Credenciais_Forem_Validas()
     {
         // Arrange
-        var email = Email.Create("maicon@email.com");
-        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
-        var user = User.Create("Maicon Guedes", email, passwordHash);
+        var user = CreateUser();
+        var email = user.Email;
+        var passwordHash = user.PasswordHash;
         var userRepository = Substitute.For<IUserRepository>();
         var passwordHasher = Substitute.For<IPasswordHasher>();
         var accessTokenGenerator = Substitute.For<IAccessTokenGenerator>();
@@ -89,9 +89,9 @@ public sealed class AuthenticateUserUseCaseTests
     public async Task Deve_Lancar_Excecao_Quando_Senha_For_Invalida()
     {
         // Arrange
-        var email = Email.Create("maicon@email.com");
-        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
-        var user = User.Create("Maicon Guedes", email, passwordHash);
+        var user = CreateUser();
+        var email = user.Email;
+        var passwordHash = user.PasswordHash;
         var userRepository = Substitute.For<IUserRepository>();
         var passwordHasher = Substitute.For<IPasswordHasher>();
         var accessTokenGenerator = Substitute.For<IAccessTokenGenerator>();
@@ -126,9 +126,9 @@ public sealed class AuthenticateUserUseCaseTests
     public async Task Deve_Lancar_Excecao_Quando_Usuario_Estiver_Inativo()
     {
         // Arrange
-        var email = Email.Create("maicon@email.com");
-        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
-        var user = User.Create("Maicon Guedes", email, passwordHash);
+        var user = CreateUser();
+        var email = user.Email;
+        var passwordHash = user.PasswordHash;
         var userRepository = Substitute.For<IUserRepository>();
         var passwordHasher = Substitute.For<IPasswordHasher>();
         var accessTokenGenerator = Substitute.For<IAccessTokenGenerator>();
@@ -165,9 +165,9 @@ public sealed class AuthenticateUserUseCaseTests
     public async Task Deve_Tentar_Verificar_Senha_Fraca_No_Login_Sem_Aplicar_Regra_De_Cadastro()
     {
         // Arrange
-        var email = Email.Create("maicon@email.com");
-        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
-        var user = User.Create("Maicon Guedes", email, passwordHash);
+        var user = CreateUser();
+        var email = user.Email;
+        var passwordHash = user.PasswordHash;
         var userRepository = Substitute.For<IUserRepository>();
         var passwordHasher = Substitute.For<IPasswordHasher>();
         var accessTokenGenerator = Substitute.For<IAccessTokenGenerator>();
@@ -196,5 +196,14 @@ public sealed class AuthenticateUserUseCaseTests
         excecao.Message.ShouldBe(ApplicationMessages.Authentication.InvalidCredentials);
         passwordHasher.Received(1).Verify("123", passwordHash);
         accessTokenGenerator.DidNotReceive().Generate(Arg.Any<User>());
+    }
+
+    private static User CreateUser()
+    {
+        var email = Email.Create("maicon@email.com");
+        var cpf = Cpf.Create("529.982.247-25");
+        var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
+
+        return User.Create("Maicon Guedes", email, cpf, new DateOnly(1993, 6, 17), passwordHash);
     }
 }

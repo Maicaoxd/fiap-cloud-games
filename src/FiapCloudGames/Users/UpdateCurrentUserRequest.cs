@@ -7,5 +7,7 @@ namespace FCG.Api.Users
         [Required(ErrorMessage = ApiMessages.User.NameRequired)]
         string Name,
         [Required(ErrorMessage = ApiMessages.User.EmailRequired)]
-        string Email);
+        string Email,
+        [Required(ErrorMessage = ApiMessages.User.BirthDateRequired)]
+        DateOnly? BirthDate);
 }

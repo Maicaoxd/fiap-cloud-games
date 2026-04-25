@@ -1,5 +1,6 @@
 using FCG.Api.Authentication;
 using FCG.Application.Users.Authenticate;
+using FCG.Application.Users.ForgotPassword;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +11,14 @@ namespace FCG.Api.Controllers
     public sealed class AuthenticationController : ControllerBase
     {
         private readonly AuthenticateUserUseCase _authenticateUserUseCase;
+        private readonly ForgotPasswordUseCase _forgotPasswordUseCase;
 
-        public AuthenticationController(AuthenticateUserUseCase authenticateUserUseCase)
+        public AuthenticationController(
+            AuthenticateUserUseCase authenticateUserUseCase,
+            ForgotPasswordUseCase forgotPasswordUseCase)
         {
             _authenticateUserUseCase = authenticateUserUseCase;
+            _forgotPasswordUseCase = forgotPasswordUseCase;
         }
 
         [HttpPost("login")]
@@ -35,6 +40,27 @@ namespace FCG.Api.Controllers
             var response = new LoginResponse(result.AccessToken);
 
             return Ok(response);
+        }
+
+        [HttpPost("forgot-password")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPasswordAsync(
+            ForgotPasswordRequest request,
+            CancellationToken cancellationToken)
+        {
+            var command = new ForgotPasswordCommand(
+                request.Email,
+                request.Cpf,
+                request.BirthDate!.Value,
+                request.NewPassword,
+                request.ConfirmNewPassword);
+
+            await _forgotPasswordUseCase.ExecuteAsync(command, cancellationToken);
+
+            return NoContent();
         }
     }
 }

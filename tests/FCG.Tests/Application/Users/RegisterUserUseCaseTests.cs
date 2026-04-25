@@ -16,6 +16,7 @@ public sealed class RegisterUserUseCaseTests
     public async Task Deve_Cadastrar_Usuario_Quando_Dados_Forem_Validos()
     {
         // Arrange
+        var birthDate = new DateOnly(1993, 6, 17);
         var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
         var userRepository = Substitute.For<IUserRepository>();
         var passwordHasher = Substitute.For<IPasswordHasher>();
@@ -24,13 +25,14 @@ public sealed class RegisterUserUseCaseTests
         userRepository
             .ExistsByEmailAsync(Arg.Any<Email>(), Arg.Any<CancellationToken>())
             .Returns(false);
-
+        userRepository
+            .ExistsByCpfAsync(Arg.Any<Cpf>(), Arg.Any<CancellationToken>())
+            .Returns(false);
         userRepository
             .AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>())
             .Returns(callInfo =>
             {
                 addedUser = callInfo.ArgAt<User>(0);
-
                 return Task.CompletedTask;
             });
 
@@ -40,6 +42,8 @@ public sealed class RegisterUserUseCaseTests
         var command = new RegisterUserCommand(
             "Maicon Guedes",
             "maicon@email.com",
+            "529.982.247-25",
+            birthDate,
             "Senha@123",
             "Senha@123");
 
@@ -52,6 +56,8 @@ public sealed class RegisterUserUseCaseTests
         addedUser!.Id.ShouldBe(result.UserId);
         addedUser.Name.ShouldBe("Maicon Guedes");
         addedUser.Email.ShouldBe(Email.Create("maicon@email.com"));
+        addedUser.Cpf.ShouldBe(Cpf.Create("529.982.247-25"));
+        addedUser.BirthDate.ShouldBe(birthDate);
         addedUser.PasswordHash.ShouldBe(passwordHash);
         addedUser.Role.ShouldBe(UserRole.User);
         passwordHasher.Received(1).Hash(Arg.Any<Password>());
@@ -68,6 +74,8 @@ public sealed class RegisterUserUseCaseTests
         var command = new RegisterUserCommand(
             "Maicon Guedes",
             "maicon@email.com",
+            "529.982.247-25",
+            new DateOnly(1993, 6, 17),
             "Senha@123",
             "Outra@123");
 
@@ -95,6 +103,8 @@ public sealed class RegisterUserUseCaseTests
         var command = new RegisterUserCommand(
             "Maicon Guedes",
             "maicon@email.com",
+            "529.982.247-25",
+            new DateOnly(1993, 6, 17),
             "Senha@123",
             "Senha@123");
 
@@ -103,6 +113,38 @@ public sealed class RegisterUserUseCaseTests
 
         // Assert
         excecao.Message.ShouldBe(ApplicationMessages.User.EmailAlreadyRegistered);
+        passwordHasher.DidNotReceive().Hash(Arg.Any<Password>());
+        await userRepository.DidNotReceive().AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Deve_Lancar_Excecao_Quando_Cpf_Ja_Estiver_Cadastrado()
+    {
+        // Arrange
+        var userRepository = Substitute.For<IUserRepository>();
+        var passwordHasher = Substitute.For<IPasswordHasher>();
+
+        userRepository
+            .ExistsByEmailAsync(Arg.Any<Email>(), Arg.Any<CancellationToken>())
+            .Returns(false);
+        userRepository
+            .ExistsByCpfAsync(Arg.Any<Cpf>(), Arg.Any<CancellationToken>())
+            .Returns(true);
+
+        var useCase = new RegisterUserUseCase(userRepository, passwordHasher);
+        var command = new RegisterUserCommand(
+            "Maicon Guedes",
+            "maicon@email.com",
+            "529.982.247-25",
+            new DateOnly(1993, 6, 17),
+            "Senha@123",
+            "Senha@123");
+
+        // Act
+        var excecao = await Should.ThrowAsync<CpfAlreadyRegisteredException>(() => useCase.ExecuteAsync(command));
+
+        // Assert
+        excecao.Message.ShouldBe(ApplicationMessages.User.CpfAlreadyRegistered);
         passwordHasher.DidNotReceive().Hash(Arg.Any<Password>());
         await userRepository.DidNotReceive().AddAsync(Arg.Any<User>(), Arg.Any<CancellationToken>());
     }

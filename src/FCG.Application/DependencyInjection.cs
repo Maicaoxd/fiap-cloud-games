@@ -6,7 +6,9 @@ using FCG.Application.Games.Update;
 using FCG.Application.Libraries.Acquire;
 using FCG.Application.Libraries.List;
 using FCG.Application.Users.Authenticate;
+using FCG.Application.Users.ChangePassword;
 using FCG.Application.Users.Deactivate;
+using FCG.Application.Users.ForgotPassword;
 using FCG.Application.Users.Register;
 using FCG.Application.Users.Update;
 using FCG.Application.Users.UpdateCurrent;
@@ -20,6 +22,7 @@ namespace FCG.Application
         {
             services.AddScoped<AcquireGameUseCase>();
             services.AddScoped<AuthenticateUserUseCase>();
+            services.AddScoped<ChangePasswordUseCase>();
             services.AddScoped<CreateGameUseCase>();
             services.AddScoped<DeactivateGameUseCase>();
             services.AddScoped<GetGameUseCase>();
@@ -27,6 +30,7 @@ namespace FCG.Application
             services.AddScoped<ListGamesUseCase>();
             services.AddScoped<UpdateGameUseCase>();
             services.AddScoped<DeactivateUserUseCase>();
+            services.AddScoped<ForgotPasswordUseCase>();
             services.AddScoped<RegisterUserUseCase>();
             services.AddScoped<UpdateUserUseCase>();
             services.AddScoped<UpdateCurrentUserUseCase>();

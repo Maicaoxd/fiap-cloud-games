@@ -132,8 +132,9 @@ public sealed class LibraryControllerTests
     private static FCG.Domain.Users.User CreateUser(Guid userId)
     {
         var email = FCG.Domain.Users.ValueObjects.Email.Create("maicon@email.com");
+        var cpf = FCG.Domain.Users.ValueObjects.Cpf.Create("529.982.247-25");
         var passwordHash = FCG.Domain.Users.ValueObjects.PasswordHash.Create("$2a$11$hashfakeparatestes");
 
-        return FCG.Domain.Users.User.Create("Maicon Guedes", email, passwordHash, userId);
+        return FCG.Domain.Users.User.Create("Maicon Guedes", email, cpf, new DateOnly(1993, 6, 17), passwordHash, userId);
     }
 }

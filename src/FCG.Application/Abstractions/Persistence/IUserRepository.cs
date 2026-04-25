@@ -7,7 +7,11 @@ namespace FCG.Application.Abstractions.Persistence
     {
         Task<bool> ExistsByEmailAsync(Email email, CancellationToken cancellationToken = default);
 
+        Task<bool> ExistsByCpfAsync(Cpf cpf, CancellationToken cancellationToken = default);
+
         Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default);
+
+        Task<User?> GetByCpfAsync(Cpf cpf, CancellationToken cancellationToken = default);
 
         Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default);
 

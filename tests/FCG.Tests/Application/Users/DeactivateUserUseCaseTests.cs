@@ -89,8 +89,9 @@ public sealed class DeactivateUserUseCaseTests
     private static User CreateUser()
     {
         var email = Email.Create("maicon@email.com");
+        var cpf = Cpf.Create("529.982.247-25");
         var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
 
-        return User.Create("Maicon Guedes", email, passwordHash);
+        return User.Create("Maicon Guedes", email, cpf, new DateOnly(1993, 6, 17), passwordHash);
     }
 }

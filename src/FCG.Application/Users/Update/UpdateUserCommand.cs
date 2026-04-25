@@ -4,5 +4,7 @@ namespace FCG.Application.Users.Update
         Guid UserId,
         string Name,
         string Email,
+        string Cpf,
+        DateOnly BirthDate,
         Guid UpdatedBy);
 }

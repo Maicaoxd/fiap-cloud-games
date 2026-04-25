@@ -13,8 +13,13 @@ namespace FCG.Api.Common
         {
             public const string NameRequired = "Nome é obrigatório.";
             public const string EmailRequired = "E-mail é obrigatório.";
+            public const string CpfRequired = "CPF é obrigatório.";
+            public const string BirthDateRequired = "Data de nascimento é obrigatória.";
             public const string PasswordRequired = "Senha é obrigatória.";
             public const string ConfirmPasswordRequired = "Confirmação de senha é obrigatória.";
+            public const string CurrentPasswordRequired = "Senha atual é obrigatória.";
+            public const string NewPasswordRequired = "Nova senha é obrigatória.";
+            public const string ConfirmNewPasswordRequired = "Confirmação da nova senha é obrigatória.";
         }
 
         public static class Game

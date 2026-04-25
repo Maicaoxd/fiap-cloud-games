@@ -87,6 +87,12 @@ namespace FCG.Api.Middlewares
                     ApiMessages.Conflict.Title,
                     exception.Message),
 
+                CpfAlreadyRegisteredException => CreateProblemDetails(
+                    context,
+                    StatusCodes.Status409Conflict,
+                    ApiMessages.Conflict.Title,
+                    exception.Message),
+
                 GameTitleAlreadyRegisteredException => CreateProblemDetails(
                     context,
                     StatusCodes.Status409Conflict,
@@ -115,6 +121,12 @@ namespace FCG.Api.Middlewares
                     context,
                     StatusCodes.Status404NotFound,
                     ApiMessages.NotFound.Title,
+                    exception.Message),
+
+                InvalidPasswordRecoveryDataException => CreateProblemDetails(
+                    context,
+                    StatusCodes.Status400BadRequest,
+                    ApiMessages.Validation.Title,
                     exception.Message),
 
                 InvalidCredentialsException => CreateProblemDetails(
