@@ -15,6 +15,8 @@ namespace FCG.Application.Abstractions.Persistence
 
         Task<User?> GetByIdAsync(Guid userId, CancellationToken cancellationToken = default);
 
+        Task<IReadOnlyCollection<User>> ListAsync(CancellationToken cancellationToken = default);
+
         Task AddAsync(User user, CancellationToken cancellationToken = default);
 
         Task UpdateAsync(User user, CancellationToken cancellationToken = default);

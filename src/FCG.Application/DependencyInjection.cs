@@ -9,6 +9,7 @@ using FCG.Application.Users.Authenticate;
 using FCG.Application.Users.ChangePassword;
 using FCG.Application.Users.Deactivate;
 using FCG.Application.Users.ForgotPassword;
+using FCG.Application.Users.List;
 using FCG.Application.Users.Register;
 using FCG.Application.Users.Update;
 using FCG.Application.Users.UpdateCurrent;
@@ -48,6 +49,7 @@ namespace FCG.Application
             services.AddScoped<ChangePasswordUseCase>();
             services.AddScoped<DeactivateUserUseCase>();
             services.AddScoped<ForgotPasswordUseCase>();
+            services.AddScoped<ListUsersUseCase>();
             services.AddScoped<RegisterUserUseCase>();
             services.AddScoped<UpdateUserUseCase>();
             services.AddScoped<UpdateCurrentUserUseCase>();

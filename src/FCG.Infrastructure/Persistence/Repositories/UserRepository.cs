@@ -48,6 +48,14 @@ namespace FCG.Infrastructure.Persistence.Repositories
                 .SingleOrDefaultAsync(user => user.Id == userId, cancellationToken);
         }
 
+        public async Task<IReadOnlyCollection<User>> ListAsync(CancellationToken cancellationToken = default)
+        {
+            return await _dbContext.Users
+                .AsNoTracking()
+                .OrderBy(user => user.Name)
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task AddAsync(User user, CancellationToken cancellationToken = default)
         {
             await _dbContext.Users.AddAsync(user, cancellationToken);

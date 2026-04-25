@@ -1,11 +1,13 @@
 using FCG.Api.Common;
 using FCG.Api.Contracts.Users.ChangePassword;
+using FCG.Api.Contracts.Users.List;
 using FCG.Api.Contracts.Users.Register;
 using FCG.Api.Contracts.Users.Update;
 using FCG.Api.Contracts.Users.UpdateCurrent;
 using FCG.Application.Users.Deactivate;
 using FCG.Application.Users.Register;
 using FCG.Application.Users.ChangePassword;
+using FCG.Application.Users.List;
 using FCG.Application.Users.Update;
 using FCG.Application.Users.UpdateCurrent;
 using FCG.Domain.Users;
@@ -21,6 +23,7 @@ namespace FCG.Api.Controllers
         private readonly DeactivateUserUseCase _deactivateUserUseCase;
         private readonly RegisterUserUseCase _registerUserUseCase;
         private readonly ChangePasswordUseCase _changePasswordUseCase;
+        private readonly ListUsersUseCase _listUsersUseCase;
         private readonly UpdateUserUseCase _updateUserUseCase;
         private readonly UpdateCurrentUserUseCase _updateCurrentUserUseCase;
 
@@ -28,14 +31,40 @@ namespace FCG.Api.Controllers
             DeactivateUserUseCase deactivateUserUseCase,
             RegisterUserUseCase registerUserUseCase,
             ChangePasswordUseCase changePasswordUseCase,
+            ListUsersUseCase listUsersUseCase,
             UpdateUserUseCase updateUserUseCase,
             UpdateCurrentUserUseCase updateCurrentUserUseCase)
         {
             _deactivateUserUseCase = deactivateUserUseCase;
             _registerUserUseCase = registerUserUseCase;
             _changePasswordUseCase = changePasswordUseCase;
+            _listUsersUseCase = listUsersUseCase;
             _updateUserUseCase = updateUserUseCase;
             _updateCurrentUserUseCase = updateCurrentUserUseCase;
+        }
+
+        [HttpGet]
+        [Authorize(Roles = nameof(UserRole.Administrator))]
+        [ProducesResponseType(typeof(IReadOnlyCollection<ListUserResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IReadOnlyCollection<ListUserResponse>>> ListAsync(
+            CancellationToken cancellationToken)
+        {
+            var result = await _listUsersUseCase.ExecuteAsync(cancellationToken);
+            var response = result
+                .Select(user => new ListUserResponse(
+                    user.UserId,
+                    user.Name,
+                    user.Email,
+                    user.Cpf,
+                    user.BirthDate,
+                    user.Role,
+                    user.IsActive))
+                .ToList();
+
+            return Ok(response);
         }
 
         [HttpPost]

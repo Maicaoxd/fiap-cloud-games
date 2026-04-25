@@ -3,6 +3,7 @@ using System.Security.Claims;
 using FCG.Api.Controllers;
 using FCG.Api.Common;
 using FCG.Api.Contracts.Users.ChangePassword;
+using FCG.Api.Contracts.Users.List;
 using FCG.Api.Contracts.Users.Register;
 using FCG.Api.Contracts.Users.Update;
 using FCG.Api.Contracts.Users.UpdateCurrent;
@@ -10,6 +11,7 @@ using FCG.Application.Abstractions.Persistence;
 using FCG.Application.Abstractions.Security;
 using FCG.Application.Users.ChangePassword;
 using FCG.Application.Users.Deactivate;
+using FCG.Application.Users.List;
 using FCG.Application.Users.Register;
 using FCG.Application.Users.Update;
 using FCG.Application.Users.UpdateCurrent;
@@ -37,6 +39,7 @@ public sealed class UsersControllerTests
         var deactivateUseCase = new DeactivateUserUseCase(userRepository);
         var registerUseCase = new RegisterUserUseCase(userRepository, passwordHasher);
         var changePasswordUseCase = new ChangePasswordUseCase(userRepository, passwordHasher);
+        var listUsersUseCase = new ListUsersUseCase(userRepository);
         var updateUserUseCase = new UpdateUserUseCase(userRepository);
         var updateCurrentUserUseCase = new UpdateCurrentUserUseCase(userRepository);
 
@@ -52,6 +55,7 @@ public sealed class UsersControllerTests
             deactivateUseCase,
             registerUseCase,
             changePasswordUseCase,
+            listUsersUseCase,
             updateUserUseCase,
             updateCurrentUserUseCase);
         var request = new RegisterUserRequest(
@@ -209,6 +213,68 @@ public sealed class UsersControllerTests
     }
 
     [Fact]
+    public async Task ListAsync_QuandoAdminAutenticado_DeveRetornarOkComUsuarios()
+    {
+        // Arrange
+        var adminId = Guid.NewGuid();
+        var firstUser = CreateUser();
+        var secondUser = CreateUser("Ana Guedes", "ana@email.com", "168.995.350-09");
+        secondUser.Deactivate(adminId);
+
+        var userRepository = Substitute.For<IUserRepository>();
+        var passwordHasher = Substitute.For<IPasswordHasher>();
+
+        userRepository
+            .ListAsync(Arg.Any<CancellationToken>())
+            .Returns(new[] { firstUser, secondUser });
+
+        var controller = CreateController(userRepository, passwordHasher, adminId);
+
+        // Act
+        var actionResult = await controller.ListAsync(CancellationToken.None);
+
+        // Assert
+        var okResult = actionResult.Result.ShouldBeOfType<OkObjectResult>();
+        var response = okResult.Value.ShouldBeOfType<List<ListUserResponse>>();
+
+        response.Count.ShouldBe(2);
+        response.ShouldContain(user =>
+            user.UserId == firstUser.Id &&
+            user.Name == "Maicon Guedes" &&
+            user.Email == "maicon@email.com" &&
+            user.Cpf == "52998224725" &&
+            user.BirthDate == new DateOnly(1993, 6, 17) &&
+            user.Role == nameof(UserRole.User) &&
+            user.IsActive);
+        response.ShouldContain(user =>
+            user.UserId == secondUser.Id &&
+            user.Name == "Ana Guedes" &&
+            user.Email == "ana@email.com" &&
+            user.Cpf == "16899535009" &&
+            user.BirthDate == new DateOnly(1993, 6, 17) &&
+            user.Role == nameof(UserRole.User) &&
+            !user.IsActive);
+        await userRepository.Received(1).ListAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public void ListAsync_DeveExigirRoleAdministrator()
+    {
+        // Arrange
+        var method = typeof(UsersController)
+            .GetMethod(nameof(UsersController.ListAsync));
+
+        // Act
+        var authorizeAttribute = method!
+            .GetCustomAttributes(typeof(AuthorizeAttribute), inherit: false)
+            .Cast<AuthorizeAttribute>()
+            .Single();
+
+        // Assert
+        authorizeAttribute.Roles.ShouldBe(nameof(UserRole.Administrator));
+    }
+
+    [Fact]
     public void UpdateMeAsync_DeveExigirUsuarioAutenticado()
     {
         // Arrange
@@ -363,6 +429,26 @@ public sealed class UsersControllerTests
         responseTypes[StatusCodes.Status500InternalServerError].Type.ShouldBe(typeof(ProblemDetails));
     }
 
+    [Fact]
+    public void ListAsync_DeveDocumentarRespostasEsperadasNoSwagger()
+    {
+        // Arrange
+        var method = typeof(UsersController)
+            .GetMethod(nameof(UsersController.ListAsync));
+
+        // Act
+        var responseTypes = method!
+            .GetCustomAttributes(typeof(ProducesResponseTypeAttribute), inherit: false)
+            .Cast<ProducesResponseTypeAttribute>()
+            .ToDictionary(attribute => attribute.StatusCode);
+
+        // Assert
+        responseTypes[StatusCodes.Status200OK].Type.ShouldBe(typeof(IReadOnlyCollection<ListUserResponse>));
+        responseTypes[StatusCodes.Status401Unauthorized].Type.ShouldBe(typeof(ProblemDetails));
+        responseTypes[StatusCodes.Status403Forbidden].Type.ShouldBe(typeof(ProblemDetails));
+        responseTypes[StatusCodes.Status500InternalServerError].Type.ShouldBe(typeof(ProblemDetails));
+    }
+
     private static UsersController CreateController(
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
@@ -372,6 +458,7 @@ public sealed class UsersControllerTests
         var deactivateUseCase = new DeactivateUserUseCase(userRepository);
         var registerUseCase = new RegisterUserUseCase(userRepository, passwordHasher);
         var changePasswordUseCase = new ChangePasswordUseCase(userRepository, passwordHasher);
+        var listUsersUseCase = new ListUsersUseCase(userRepository);
         var updateUserUseCase = new UpdateUserUseCase(userRepository);
         var updateCurrentUserUseCase = new UpdateCurrentUserUseCase(userRepository);
 
@@ -379,6 +466,7 @@ public sealed class UsersControllerTests
             deactivateUseCase,
             registerUseCase,
             changePasswordUseCase,
+            listUsersUseCase,
             updateUserUseCase,
             updateCurrentUserUseCase)
         {
@@ -403,12 +491,15 @@ public sealed class UsersControllerTests
         };
     }
 
-    private static User CreateUser()
+    private static User CreateUser(
+        string name = "Maicon Guedes",
+        string email = "maicon@email.com",
+        string cpf = "529.982.247-25")
     {
-        var email = Email.Create("maicon@email.com");
-        var cpf = Cpf.Create("529.982.247-25");
+        var emailValueObject = Email.Create(email);
+        var cpfValueObject = Cpf.Create(cpf);
         var passwordHash = PasswordHash.Create("$2a$11$hashfakeparatestes");
 
-        return User.Create("Maicon Guedes", email, cpf, new DateOnly(1993, 6, 17), passwordHash);
+        return User.Create(name, emailValueObject, cpfValueObject, new DateOnly(1993, 6, 17), passwordHash);
     }
 }
