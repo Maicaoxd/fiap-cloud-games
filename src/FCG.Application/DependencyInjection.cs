@@ -20,22 +20,37 @@ namespace FCG.Application
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
-            services.AddScoped<AcquireGameUseCase>();
-            services.AddScoped<AuthenticateUserUseCase>();
-            services.AddScoped<ChangePasswordUseCase>();
+            AddGameUseCases(services);
+            AddLibraryUseCases(services);
+            AddUserUseCases(services);
+
+            return services;
+        }
+
+        private static void AddGameUseCases(IServiceCollection services)
+        {
             services.AddScoped<CreateGameUseCase>();
             services.AddScoped<DeactivateGameUseCase>();
             services.AddScoped<GetGameUseCase>();
-            services.AddScoped<ListLibraryGamesUseCase>();
             services.AddScoped<ListGamesUseCase>();
             services.AddScoped<UpdateGameUseCase>();
+        }
+
+        private static void AddLibraryUseCases(IServiceCollection services)
+        {
+            services.AddScoped<AcquireGameUseCase>();
+            services.AddScoped<ListLibraryGamesUseCase>();
+        }
+
+        private static void AddUserUseCases(IServiceCollection services)
+        {
+            services.AddScoped<AuthenticateUserUseCase>();
+            services.AddScoped<ChangePasswordUseCase>();
             services.AddScoped<DeactivateUserUseCase>();
             services.AddScoped<ForgotPasswordUseCase>();
             services.AddScoped<RegisterUserUseCase>();
             services.AddScoped<UpdateUserUseCase>();
             services.AddScoped<UpdateCurrentUserUseCase>();
-
-            return services;
         }
     }
 }

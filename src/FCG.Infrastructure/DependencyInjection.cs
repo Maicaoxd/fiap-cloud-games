@@ -15,20 +15,30 @@ namespace FCG.Infrastructure
             this IServiceCollection services,
             IConfiguration configuration)
         {
+            AddPersistence(services, configuration);
+            AddSecurity(services, configuration);
+
+            return services;
+        }
+
+        private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
+        {
             var connectionString = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("DefaultConnection connection string was not configured.");
 
             services.AddDbContext<FcgDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            services.AddSingleton(JwtOptions.Create(configuration));
             services.AddScoped<IGameRepository, GameRepository>();
             services.AddScoped<ILibraryRepository, LibraryRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+        }
+
+        private static void AddSecurity(IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSingleton(JwtOptions.Create(configuration));
             services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
             services.AddScoped<IAccessTokenGenerator, JwtAccessTokenGenerator>();
-
-            return services;
         }
     }
 }

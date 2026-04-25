@@ -15,43 +15,55 @@ namespace FCG.Api.Extensions
             this IServiceCollection services,
             IConfiguration configuration)
         {
+            AddControllers(services);
+            AddJwtAuthentication(services, configuration);
+            AddApiDocumentation(services);
+
+            return services;
+        }
+
+        private static void AddControllers(IServiceCollection services)
+        {
             services.AddControllers()
                 .ConfigureApiBehaviorOptions(options =>
                 {
                     options.InvalidModelStateResponseFactory =
                         ApiValidationProblemDetailsFactory.CreateInvalidModelStateResponse;
                 });
+        }
 
-            AddJwtAuthentication(services, configuration);
-
+        private static void AddApiDocumentation(IServiceCollection services)
+        {
             services.AddOpenApi();
             services.AddSwaggerGen(options =>
             {
-                options.AddSecurityDefinition(
-                    JwtBearerDefaults.AuthenticationScheme,
-                    new OpenApiSecurityScheme
-                    {
-                        Name = "Authorization",
-                        Description = "Informe apenas o token JWT, sem o prefixo Bearer.",
-                        In = ParameterLocation.Header,
-                        Type = SecuritySchemeType.Http,
-                        Scheme = JwtBearerDefaults.AuthenticationScheme,
-                        BearerFormat = "JWT"
-                    });
+                ConfigureSwaggerAuthentication(options);
+            });
+        }
 
-                options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+        private static void ConfigureSwaggerAuthentication(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions options)
+        {
+            options.AddSecurityDefinition(
+                JwtBearerDefaults.AuthenticationScheme,
+                new OpenApiSecurityScheme
                 {
-                    [
-                        new OpenApiSecuritySchemeReference(
-                            JwtBearerDefaults.AuthenticationScheme,
-                            document,
-                            externalResource: null)
-                    ] = []
+                    Name = "Authorization",
+                    Description = "Informe apenas o token JWT, sem o prefixo Bearer.",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = JwtBearerDefaults.AuthenticationScheme,
+                    BearerFormat = "JWT"
                 });
 
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+            {
+                [
+                    new OpenApiSecuritySchemeReference(
+                        JwtBearerDefaults.AuthenticationScheme,
+                        document,
+                        externalResource: null)
+                ] = []
             });
-
-            return services;
         }
 
         private static void AddJwtAuthentication(
@@ -86,24 +98,42 @@ namespace FCG.Api.Extensions
                         {
                             context.HandleResponse();
 
-                            await WriteProblemDetailsAsync(
+                            await WriteAuthenticationProblemDetailsAsync(
                                 context.HttpContext,
-                                StatusCodes.Status401Unauthorized,
-                                ApiMessages.Unauthorized.Title,
-                                ApiMessages.Unauthorized.Detail);
+                                StatusCodes.Status401Unauthorized);
                         },
                         OnForbidden = async context =>
                         {
-                            await WriteProblemDetailsAsync(
+                            await WriteAuthorizationProblemDetailsAsync(
                                 context.HttpContext,
-                                StatusCodes.Status403Forbidden,
-                                ApiMessages.Forbidden.Title,
-                                ApiMessages.Forbidden.Detail);
+                                StatusCodes.Status403Forbidden);
                         }
                     };
                 });
 
             services.AddAuthorization();
+        }
+
+        private static Task WriteAuthenticationProblemDetailsAsync(
+            HttpContext httpContext,
+            int statusCode)
+        {
+            return WriteProblemDetailsAsync(
+                httpContext,
+                statusCode,
+                ApiMessages.Unauthorized.Title,
+                ApiMessages.Unauthorized.Detail);
+        }
+
+        private static Task WriteAuthorizationProblemDetailsAsync(
+            HttpContext httpContext,
+            int statusCode)
+        {
+            return WriteProblemDetailsAsync(
+                httpContext,
+                statusCode,
+                ApiMessages.Forbidden.Title,
+                ApiMessages.Forbidden.Detail);
         }
 
         private static async Task WriteProblemDetailsAsync(
@@ -127,6 +157,5 @@ namespace FCG.Api.Extensions
                 options: null,
                 contentType: "application/problem+json");
         }
-
     }
 }

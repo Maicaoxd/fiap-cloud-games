@@ -7,34 +7,50 @@ namespace FCG.Api.Extensions
     {
         public static WebApplication UseApiPresentation(this WebApplication app)
         {
+            UseRequestLogging(app);
+            UseExceptionHandling(app);
+            UseApiDocumentation(app);
+            UseHttpPipeline(app);
+
+            return app;
+        }
+
+        private static void UseRequestLogging(IApplicationBuilder app)
+        {
+            app.UseMiddleware<StructuredRequestLoggingMiddleware>();
+        }
+
+        private static void UseExceptionHandling(WebApplication app)
+        {
             var apiOptions = app.Configuration
                 .GetSection(ApiOptions.SectionName)
                 .Get<ApiOptions>() ?? new ApiOptions();
 
-            app.UseMiddleware<StructuredRequestLoggingMiddleware>();
-
             if (app.Environment.IsDevelopment() && apiOptions.UseDeveloperExceptionPage)
             {
                 app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+                return;
             }
 
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+        }
 
+        private static void UseApiDocumentation(WebApplication app)
+        {
+            if (!app.Environment.IsDevelopment())
+                return;
+
+            app.MapOpenApi();
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        private static void UseHttpPipeline(WebApplication app)
+        {
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
-
-            return app;
         }
     }
 }
