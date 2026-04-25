@@ -117,6 +117,26 @@ public sealed class GlobalExceptionHandlingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_QuandoOcorrerUserNotFoundException_DeveRetornarNotFound()
+    {
+        // Arrange
+        var httpContext = CreateHttpContext();
+        var middleware = CreateMiddleware(_ =>
+            throw new UserNotFoundException());
+
+        // Act
+        await middleware.InvokeAsync(httpContext);
+
+        // Assert
+        var problemDetails = await ReadProblemDetailsAsync(httpContext);
+
+        httpContext.Response.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
+        problemDetails.Status.ShouldBe(StatusCodes.Status404NotFound);
+        problemDetails.Title.ShouldBe(ApiMessages.NotFound.Title);
+        problemDetails.Detail.ShouldBe(ApplicationMessages.User.NotFound);
+    }
+
+    [Fact]
     public async Task InvokeAsync_QuandoOcorrerInvalidCredentialsException_DeveRetornarUnauthorized()
     {
         // Arrange

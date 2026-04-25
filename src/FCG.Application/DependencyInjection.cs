@@ -6,6 +6,7 @@ using FCG.Application.Games.Update;
 using FCG.Application.Libraries.Acquire;
 using FCG.Application.Libraries.List;
 using FCG.Application.Users.Authenticate;
+using FCG.Application.Users.Deactivate;
 using FCG.Application.Users.Register;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,6 +24,7 @@ namespace FCG.Application
             services.AddScoped<ListLibraryGamesUseCase>();
             services.AddScoped<ListGamesUseCase>();
             services.AddScoped<UpdateGameUseCase>();
+            services.AddScoped<DeactivateUserUseCase>();
             services.AddScoped<RegisterUserUseCase>();
 
             return services;

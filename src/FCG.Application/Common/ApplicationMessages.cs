@@ -6,6 +6,7 @@ namespace FCG.Application.Common
         {
             public const string PasswordConfirmationDoesNotMatch = "As senhas não conferem.";
             public const string EmailAlreadyRegistered = "E-mail já cadastrado.";
+            public const string NotFound = "Usuário não encontrado.";
         }
 
         public static class Authentication

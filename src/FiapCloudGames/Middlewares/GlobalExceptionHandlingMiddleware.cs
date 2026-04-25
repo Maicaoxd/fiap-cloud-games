@@ -111,6 +111,12 @@ namespace FCG.Api.Middlewares
                     ApiMessages.NotFound.Title,
                     exception.Message),
 
+                UserNotFoundException => CreateProblemDetails(
+                    context,
+                    StatusCodes.Status404NotFound,
+                    ApiMessages.NotFound.Title,
+                    exception.Message),
+
                 InvalidCredentialsException => CreateProblemDetails(
                     context,
                     StatusCodes.Status401Unauthorized,

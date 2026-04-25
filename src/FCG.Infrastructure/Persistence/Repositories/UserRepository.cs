@@ -51,5 +51,22 @@ namespace FCG.Infrastructure.Persistence.Repositories
                 throw new EmailAlreadyRegisteredException();
             }
         }
+
+        public async Task UpdateAsync(User user, CancellationToken cancellationToken = default)
+        {
+            _dbContext.Users.Update(user);
+
+            try
+            {
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateException exception) when (
+                SqlServerUniqueConstraintDetector.IsUniqueConstraintViolation(
+                    exception,
+                    UniqueEmailIndexName))
+            {
+                throw new EmailAlreadyRegisteredException();
+            }
+        }
     }
 }
